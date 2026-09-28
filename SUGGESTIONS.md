@@ -1,176 +1,94 @@
-# What to build next
+# Roadmap
 
-A prioritised list of improvements for TriviaHQ. Each item says *why* it is
-worth doing, roughly how big it is, and which files it touches.
-
-Legend: **S** ≈ under a day, **M** ≈ a few days, **L** ≈ a week or more.
+Status of the improvement list. Items that shipped are checked and moved to the
+top; the rest is what is still on the table.
 
 ---
 
-## Already improved in this pass
+## Shipped
 
-For context, so the list below does not repeat them:
-
-- the round is now a single state machine (`lib/ui/screens/gameplay.dart`) — the
-  countdown no longer restarts forever after the last question, no longer
-  advances questions while the app is backgrounded, and a timeout reveals the
-  answer instead of silently skipping it;
-- levels draw **random** questions per round instead of the same ten rows in id
-  order, and both `Trivia.level` and `Category.categoryId` are indexed;
-- answer choices are reshuffled per question so the correct answer is not always
-  in the authored slot;
-- routing (`lib/utils/routes.dart`) has a fallback and no longer crashes on
-  unknown route names;
-- `RatingStars` cannot divide by zero while questions are still loading;
-- new settings (questions per round, seconds per question or no timer, haptics,
-  reset progress) persisted through `SettingsProvider`;
-- the question bank is re-imported when `currentQuestionBankVersion` changes;
-- 47 unit/widget tests plus a CI pipeline (`docs/ci.yml`).
-
----
-
-## Next up (highest value for the least work)
-
-### 1. Answer review after a round — **M**
-
-After each round, list every question with the player's answer, the correct
-answer and a link back to the category. This is the single biggest learning win:
-right now the results screen only shows `score/total`.
-
-- Pass the answered questions to `ResultScreen` (it already receives `score`
-  and `total`; add a `List<AnsweredQuestion>`), or persist the round in a new
-  Isar collection so it can be revisited from the home screen.
-- Reuse `GameChoiceButton` with `ChoiceStatus.correct` / `.wrong` to render the
-  rows, so the review looks identical to the game.
-
-### 2. Streaks, daily challenge and "best" stats — **M**
-
-Retention is the whole point of a trivia app; a reason to come back tomorrow
-beats any amount of polish.
-
-- `DailyChallenge`: derive a seed from the date
-  (`Random(2026 * 10000 + month * 100 + day)`) and reuse `pickRandom` in
-  `lib/utils/quiz_selection.dart` so every device gets the same ten questions.
-- Streak: add `lastPlayedOn` and `currentStreak` to the `Settings` collection
-  and show a flame badge on the home screen.
-- Stats screen: questions answered, accuracy per category, hardest category.
-
-### 3. Practise your mistakes (spaced repetition) — **M**
-
-Add a `QuestionStat` collection (`questionId`, `timesShown`, `timesCorrect`,
-`lastSeen`) written from `_revealAnswer`. With that data you can:
-
-- build a "Practice mistakes" mode from the home screen;
-- stop repeating questions the player already knows;
-- estimate question difficulty and use it to order the campaign, which would let
-  levels be generated rather than frozen at import time.
-
-### 4. Lifelines — **S/M**
-
-50:50, skip and +10 seconds, granted once or twice per round. Cheap to build on
-top of `_revealAnswer`, and it adds real decisions to a round. Requires a small
-amount of UI in `GameHeader` plus state in `_GamePlayScreenState`.
-
-### 5. Pause / resume a round — **S**
-
-Exit is currently the only way out of a round, and it always discards progress.
-A pause overlay (the same pattern as `_showExitDialog`, which already suspends
-the countdown) would let players stop without losing the round.
-
-### 6. Accessibility and large text — **S/M**
-
-- Text scaling: the level and category grids use fixed `mainAxisSpacing` and
-  `childAspectRatio`, so large accessibility fonts will overflow. Prefer
-  flexible heights, and test the home screen at `TextScaler.linear(2)`.
-- `MediaQuery.disableAnimations`: skip `ConfettiBurst` and the level highlight
-  animation when the platform asks for reduced motion.
-- High-contrast mode: `Colors.green` for a correct answer is defined in
-  `AppColors.correct`; check it against `colorScheme.surface` in both themes.
-- `Semantics` coverage is partially done (`RatingStars`, `GameChoiceButton`,
-  `LevelCard`); the category grid and the countdown still need labels.
-
-### 7. Localisation — **M**
-
-`intl` is already a dependency but nothing is localised. Add
-`flutter_localizations`, extract the UI strings into `lib/l10n/app_en.arb`, and
-translate the 20 category names. `Categories.categories` already keeps
-`categoryId` separate from the display name, so the asset lookup
-(`assets/images/<categoryId>.svg`) survives translation.
-
+- [x] **Answer review after a round** – every question is shown with the
+  player's answer, the correct answer and a verdict (correct / wrong / out of
+  time / skipped), reachable from `result_screen.dart`.
+- [x] **Daily challenge and streaks** – date-seeded ten questions, identical on
+  every device, plus a day streak tracked in settings and shown on the home
+  screen. Statistics screen (accuracy, rounds, best round, mastered and
+  to-practise questions, recent history).
+- [x] **Practise your mistakes** – a `QuestionStat` collection (keyed by
+  question text so it survives re-imports) feeds a dedicated practice round and
+  the practice queue count on the home screen.
+- [x] **Lifelines** – 50:50, skip and +10 seconds, one each per round, with an
+  explicit `ChoiceStatus.eliminated` state.
+- [x] **Pause / resume** – an overlay that hides the question; the countdown
+  also pauses when the app is backgrounded.
+- [x] **Accessibility** – grids grow with the font size, confetti and the level
+  animation respect "reduce motion", and the main widgets announce clean
+  `Semantics` labels.
+- [x] **Localisation** – English and Spanish, with a 20-key category name
+  lookup by slug (`lib/l10n`, `context.l10n`).
+- [x] **Web fails gracefully** – a clear "not available on the web" screen
+  instead of a crash.
+- [x] **Startup import on a background isolate** – the 6 MB question bank is
+  parsed in `compute()` with a determinate progress bar on the splash screen.
+- [x] **Testable repositories** – `test/integration/` runs the whole
+  repository layer against a real Isar instance with a seeded bank (selection,
+  unlocks, best scores, streaks, practice queue, reset).
+- [x] **Audio pipeline** – clips are preloaded once in a `SoundPlayer` instead
+  of being re-read from disk on every answer.
+- [x] **License** – MIT.
+- [x] **CONTRIBUTING.md** – setup, codegen, localisation and check instructions.
+- [x] **Asset/category consistency test** – every category slug has an SVG icon
+  and vice versa.
+- [x] **CI** – pipeline in `docs/ci.yml` (analyze, format, codegen drift,
+  localisation drift, integration lib, tests). Copy it to
+  `.github/workflows/ci.yml` from your account; the automation identity used
+  for this branch is not allowed to push workflow files.
 
 ---
 
-## Bigger bets
+## Still on the table
 
-### 8. Web and desktop support — **M**
+### 1. Difficulty-aware campaign — **L**
 
-`main()` calls `getApplicationDocumentsDirectory()`, which throws on web, yet
-`web/` is a generated platform folder. Either:
+Levels are still a fixed shuffle-and-chunk partition. With the `QuestionStat`
+data that now exists you can estimate per-question difficulty and rebuild the
+ladder with a real progression curve (easiest questions first). This is the one
+suggestion that changes the game's shape, so it deserves its own design pass:
+how many levels, when to re-balance, and what happens to existing level scores
+when the ladder is re-partitioned.
 
-- guard the directory with `kIsWeb` and open Isar with a web backend (Isar 3 web
-  support is experimental), or
-- fall back to a `shared_preferences`/JSON cache on web, or
-- delete the `web/` folder so nobody assumes it works.
+### 2. Richer per-category statistics — **M**
 
-Also check that `just_audio` and haptics degrade gracefully on desktop.
+The stats screen shows global numbers. Per-category accuracy and a "hardest
+questions" list (sorted by accuracy from `QuestionStat`) would make it much
+more useful. Both are now cheap: the data is already stored.
 
-### 9. Startup import performance — **M**
+### 3. Shareable result card — **M**
 
-`assets/trivia.json` is 6.3 MB (~10k questions) and is parsed on the UI isolate
-on first launch. If start-up feels slow:
+The offline-first constraint rules out a server leaderboard, but a shareable
+image/text card of a good result is most of the social value without a backend.
 
-- run the parse in `compute()` and stream progress into the splash screen;
-- ship a gzipped/binary asset, or split it per category and import lazily;
-- show real progress (`Questions 4,000 / 10,120`) instead of a spinner.
+### 4. Icons and native splash — **S**
 
-Measure first: wrap `extractDataToDatabase()` in a `Stopwatch` behind
-`kDebugMode`.
+`flutter_launcher_icons` and `flutter_native_splash`, once there is a source
+logo asset. The config is intentionally not committed without one, because a
+missing asset makes those generators fail.
 
-### 10. Testing beyond pure functions — **M**
+### 5. Release configuration — **S/M**
 
-The repository layer (`QuizRepository`, `ProgressRepository`) currently reaches
-for the global `Repository.isar` singleton, which makes it untestable. Pass the
-`Isar` instance into the repositories (or use `isar_test`) so round logic,
-unlocking and score persistence can be covered end to end, and add an
-`integration_test/` case for "play a level to the end and see the results".
+Android signing config, `--split-per-abi`, ProGuard/R8 rules for Isar and
+just_audio, and `CFBundleDisplayName` on iOS.
 
-### 11. Audio pipeline — **S**
+### 6. More languages — **S each**
 
-Every answer calls `setAsset()` then `play()`, which re-reads the file and can
-lag behind the tap. Preload the five short clips into a small `AudioPlayer` pool
-(or a `ConcatenatingAudioSource`) and reuse them. Also wire up the currently
-unused `assets/audio/click.mp3` for button feedback, and consider a mute toggle
-directly in `GameHeader`.
-
-### 12. Difficulty-aware campaign — **L**
-
-The ladder is "shuffle everything, chunk by 10", so level 1 can contain brutal
-questions. With per-question statistics (item 3) you can order the campaign by
-empirical difficulty and give each level a real progression curve.
-
----
-
-## Housekeeping (quick wins)
-
-- **License** — the repository has none. Add one before sharing it publicly.
-- **`CONTRIBUTING.md`** — or at least a PR template carrying the "regenerate the
-  Isar schemas" note from the README.
-- **App icon and native splash** — `flutter_launcher_icons` and
-  `flutter_native_splash`, so the branding matches the in-app splash screen.
-- **Release configuration** — Android signing config, `--split-per-abi`,
-  ProGuard/R8 rules for Isar and just_audio, and `CFBundleDisplayName` on iOS.
-- **Move the CI file into place** — `.github/workflows/ci.yml` could not be
-  pushed by the automation identity used for this branch (GitHub App tokens need
-  the `workflows` scope). Copy `docs/ci.yml` there and push from your account.
-- **Asset/category consistency** — images are addressed by convention
-  (`assets/images/<categoryId>.svg`). If a category is renamed, nothing catches
-  the missing file; add a start-up assertion that every entry in
-  `Categories.categories` has a matching asset.
+Drop a new `app_<locale>.arb` into `lib/l10n` (copy `app_en.arb`), run
+`flutter gen-l10n`, and the app picks it up automatically. The question bank
+itself is English-only, so a meaningful new language also needs translated
+questions.
 
 ## Deliberately not recommended
 
 - **Ads, accounts and server-side leaderboards.** Offline-first is this app's
-  main advantage; a device-local leaderboard or a shareable result card gets
-  most of the social value without a backend.
-- **Adding another state-management library.** `provider` plus the current small
-  provider classes is sufficient at this size.
+  main advantage; the result card (item 3) covers most of the social value.
+- **Adding another state-management library.** `provider` plus the current
+  small provider classes is sufficient at this size.

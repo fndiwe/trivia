@@ -29,12 +29,23 @@ jobs:
           dart run build_runner build --delete-conflicting-outputs
           git diff --exit-code -- '**/*.g.dart'
 
+      - name: Verify localisations are generated and committed
+        run: |
+          flutter gen-l10n
+          git diff --exit-code -- 'lib/l10n/generated'
+
+      - name: Fetch the Isar native library for the integration tests
+        run: |
+          mkdir -p build/isar
+          curl -sL -o build/isar/libisar.so \
+            https://github.com/isar/isar/releases/download/3.1.0%2B1/libisar_linux_x64.so
+
       - name: Analyze
         run: flutter analyze
 
       - name: Check formatting of hand-written Dart
         run: |
-          FILES=$(git ls-files 'lib' 'test' | grep '\.dart$' | grep -v '\.g\.dart$')
+          FILES=$(git ls-files 'lib' 'test' | grep '\.dart$' | grep -v '\.g\.dart$' | grep -v 'lib/l10n/generated')
           dart format --output=none --set-exit-if-changed $FILES
 
       - name: Run tests
