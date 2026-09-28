@@ -19,6 +19,12 @@ const int defaultCategoryRoundSize = 20;
 /// Round lengths offered by the "questions per category round" setting.
 const List<int> categoryRoundSizeOptions = [10, 15, 20, 30];
 
+/// Number of questions in the daily challenge.
+const int dailyChallengeLength = 10;
+
+/// Upper bound on the number of questions in a "practise your mistakes" round.
+const int practiceRoundLength = 15;
+
 /// Default number of seconds a player gets per question.
 const int defaultSecondsPerQuestion = 30;
 

@@ -41,6 +41,19 @@ class SettingsProvider extends ChangeNotifier {
     _safeNotify();
   }
 
+  /// Re-reads the stored row.
+  ///
+  /// Needed after a repository transaction that touches settings directly (the
+  /// round history updates the streak and the daily-challenge date), so the UI
+  /// does not show stale values.
+  Future<void> refresh() async {
+    final isar = Repository.isar;
+    final stored = await isar.settings.get(_settings.id);
+    if (stored != null) _settings = stored;
+    _isLoaded = true;
+    _safeNotify();
+  }
+
   /// Applies [change] to the current settings, updates the UI immediately and
   /// persists in the background.
   ///

@@ -12,6 +12,7 @@ class GameHeader extends StatelessWidget {
     required this.score,
     this.category,
     this.level,
+    this.modeLabel,
     required this.onExit,
   });
 
@@ -20,6 +21,11 @@ class GameHeader extends StatelessWidget {
   final int score;
   final Category? category;
   final Level? level;
+
+  /// Shown instead of the level number for modes that have no level, e.g. the
+  /// daily challenge and the practice mode.
+  final String? modeLabel;
+
   final VoidCallback onExit;
 
   @override
@@ -66,7 +72,7 @@ class GameHeader extends StatelessWidget {
           )
         else
           Text(
-            'Level ${level?.id}',
+            level != null ? 'Level ${level!.id}' : (modeLabel ?? ''),
             style: theme.textTheme.titleSmall!.copyWith(
               fontWeight: FontWeight.bold,
             ),

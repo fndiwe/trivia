@@ -22,32 +22,52 @@ const SettingsSchema = CollectionSchema(
       name: r'categoryRoundSize',
       type: IsarType.long,
     ),
-    r'hapticsEnabled': PropertySchema(
+    r'currentStreak': PropertySchema(
       id: 1,
+      name: r'currentStreak',
+      type: IsarType.long,
+    ),
+    r'dailyChallengeCompletedOn': PropertySchema(
+      id: 2,
+      name: r'dailyChallengeCompletedOn',
+      type: IsarType.dateTime,
+    ),
+    r'hapticsEnabled': PropertySchema(
+      id: 3,
       name: r'hapticsEnabled',
       type: IsarType.bool,
     ),
+    r'lastPlayedOn': PropertySchema(
+      id: 4,
+      name: r'lastPlayedOn',
+      type: IsarType.dateTime,
+    ),
+    r'longestStreak': PropertySchema(
+      id: 5,
+      name: r'longestStreak',
+      type: IsarType.long,
+    ),
     r'questionBankVersion': PropertySchema(
-      id: 2,
+      id: 6,
       name: r'questionBankVersion',
       type: IsarType.long,
     ),
     r'secondsPerQuestion': PropertySchema(
-      id: 3,
+      id: 7,
       name: r'secondsPerQuestion',
       type: IsarType.long,
     ),
     r'soundEnabled': PropertySchema(
-      id: 4,
+      id: 8,
       name: r'soundEnabled',
       type: IsarType.bool,
     ),
     r'theme': PropertySchema(
-      id: 5,
+      id: 9,
       name: r'theme',
       type: IsarType.byte,
       enumMap: _SettingsthemeEnumValueMap,
-    )
+    ),
   },
   estimateSize: _settingsEstimateSize,
   serialize: _settingsSerialize,
@@ -79,11 +99,15 @@ void _settingsSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeLong(offsets[0], object.categoryRoundSize);
-  writer.writeBool(offsets[1], object.hapticsEnabled);
-  writer.writeLong(offsets[2], object.questionBankVersion);
-  writer.writeLong(offsets[3], object.secondsPerQuestion);
-  writer.writeBool(offsets[4], object.soundEnabled);
-  writer.writeByte(offsets[5], object.theme.index);
+  writer.writeLong(offsets[1], object.currentStreak);
+  writer.writeDateTime(offsets[2], object.dailyChallengeCompletedOn);
+  writer.writeBool(offsets[3], object.hapticsEnabled);
+  writer.writeDateTime(offsets[4], object.lastPlayedOn);
+  writer.writeLong(offsets[5], object.longestStreak);
+  writer.writeLong(offsets[6], object.questionBankVersion);
+  writer.writeLong(offsets[7], object.secondsPerQuestion);
+  writer.writeBool(offsets[8], object.soundEnabled);
+  writer.writeByte(offsets[9], object.theme.index);
 }
 
 Settings _settingsDeserialize(
@@ -95,13 +119,18 @@ Settings _settingsDeserialize(
   final object = Settings(
     categoryRoundSize:
         reader.readLongOrNull(offsets[0]) ?? defaultCategoryRoundSize,
-    hapticsEnabled: reader.readBoolOrNull(offsets[1]) ?? true,
+    currentStreak: reader.readLongOrNull(offsets[1]) ?? 0,
+    dailyChallengeCompletedOn: reader.readDateTimeOrNull(offsets[2]),
+    hapticsEnabled: reader.readBoolOrNull(offsets[3]) ?? true,
     id: id,
-    questionBankVersion: reader.readLongOrNull(offsets[2]) ?? 0,
+    lastPlayedOn: reader.readDateTimeOrNull(offsets[4]),
+    longestStreak: reader.readLongOrNull(offsets[5]) ?? 0,
+    questionBankVersion: reader.readLongOrNull(offsets[6]) ?? 0,
     secondsPerQuestion:
-        reader.readLongOrNull(offsets[3]) ?? defaultSecondsPerQuestion,
-    soundEnabled: reader.readBoolOrNull(offsets[4]) ?? true,
-    theme: _SettingsthemeValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+        reader.readLongOrNull(offsets[7]) ?? defaultSecondsPerQuestion,
+    soundEnabled: reader.readBoolOrNull(offsets[8]) ?? true,
+    theme:
+        _SettingsthemeValueEnumMap[reader.readByteOrNull(offsets[9])] ??
         ThemeMode.system,
   );
   return object;
@@ -117,26 +146,31 @@ P _settingsDeserializeProp<P>(
     case 0:
       return (reader.readLongOrNull(offset) ?? defaultCategoryRoundSize) as P;
     case 1:
-      return (reader.readBoolOrNull(offset) ?? true) as P;
-    case 2:
       return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 2:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
-      return (reader.readLongOrNull(offset) ?? defaultSecondsPerQuestion) as P;
-    case 4:
       return (reader.readBoolOrNull(offset) ?? true) as P;
+    case 4:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
+      return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 6:
+      return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 7:
+      return (reader.readLongOrNull(offset) ?? defaultSecondsPerQuestion) as P;
+    case 8:
+      return (reader.readBoolOrNull(offset) ?? true) as P;
+    case 9:
       return (_SettingsthemeValueEnumMap[reader.readByteOrNull(offset)] ??
-          ThemeMode.system) as P;
+              ThemeMode.system)
+          as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
-const _SettingsthemeEnumValueMap = {
-  'system': 0,
-  'light': 1,
-  'dark': 2,
-};
+const _SettingsthemeEnumValueMap = {'system': 0, 'light': 1, 'dark': 2};
 const _SettingsthemeValueEnumMap = {
   0: ThemeMode.system,
   1: ThemeMode.light,
@@ -166,10 +200,7 @@ extension SettingsQueryWhereSort on QueryBuilder<Settings, Settings, QWhere> {
 extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
   QueryBuilder<Settings, Settings, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
     });
   }
 
@@ -195,8 +226,10 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
     });
   }
 
-  QueryBuilder<Settings, Settings, QAfterWhereClause> idGreaterThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Settings, Settings, QAfterWhereClause> idGreaterThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -204,8 +237,10 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
     });
   }
 
-  QueryBuilder<Settings, Settings, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Settings, Settings, QAfterWhereClause> idLessThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -220,12 +255,14 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -233,77 +270,211 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
 extension SettingsQueryFilter
     on QueryBuilder<Settings, Settings, QFilterCondition> {
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      categoryRoundSizeEqualTo(int value) {
+  categoryRoundSizeEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'categoryRoundSize',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'categoryRoundSize', value: value),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      categoryRoundSizeGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
+  categoryRoundSizeGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'categoryRoundSize',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'categoryRoundSize',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      categoryRoundSizeLessThan(
-    int value, {
-    bool include = false,
-  }) {
+  categoryRoundSizeLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'categoryRoundSize',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'categoryRoundSize',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      categoryRoundSizeBetween(
+  categoryRoundSizeBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'categoryRoundSize',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'categoryRoundSize',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> currentStreakEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'currentStreak', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  currentStreakGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'currentStreak',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> currentStreakLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'currentStreak',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> currentStreakBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'currentStreak',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  dailyChallengeCompletedOnIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'dailyChallengeCompletedOn'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  dailyChallengeCompletedOnIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'dailyChallengeCompletedOn'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  dailyChallengeCompletedOnEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'dailyChallengeCompletedOn',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  dailyChallengeCompletedOnGreaterThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'dailyChallengeCompletedOn',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  dailyChallengeCompletedOnLessThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'dailyChallengeCompletedOn',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  dailyChallengeCompletedOnBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'dailyChallengeCompletedOn',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> hapticsEnabledEqualTo(
-      bool value) {
+    bool value,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'hapticsEnabled',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'hapticsEnabled', value: value),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
     });
   }
 
@@ -312,11 +483,13 @@ extension SettingsQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -325,11 +498,13 @@ extension SettingsQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -340,145 +515,276 @@ extension SettingsQueryFilter
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
-  QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      questionBankVersionEqualTo(int value) {
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> lastPlayedOnIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'questionBankVersion',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'lastPlayedOn'),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      questionBankVersionGreaterThan(
+  lastPlayedOnIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'lastPlayedOn'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> lastPlayedOnEqualTo(
+    DateTime? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lastPlayedOn', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastPlayedOnGreaterThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastPlayedOn',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> lastPlayedOnLessThan(
+    DateTime? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastPlayedOn',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> lastPlayedOnBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastPlayedOn',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> longestStreakEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'longestStreak', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  longestStreakGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'longestStreak',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> longestStreakLessThan(
     int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'questionBankVersion',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'longestStreak',
+          value: value,
+        ),
+      );
     });
   }
 
-  QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      questionBankVersionLessThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'questionBankVersion',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      questionBankVersionBetween(
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> longestStreakBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'questionBankVersion',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'longestStreak',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      secondsPerQuestionEqualTo(int value) {
+  questionBankVersionEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'secondsPerQuestion',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'questionBankVersion', value: value),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      secondsPerQuestionGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
+  questionBankVersionGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'secondsPerQuestion',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'questionBankVersion',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      secondsPerQuestionLessThan(
-    int value, {
-    bool include = false,
-  }) {
+  questionBankVersionLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'secondsPerQuestion',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'questionBankVersion',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition>
-      secondsPerQuestionBetween(
+  questionBankVersionBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'secondsPerQuestion',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'questionBankVersion',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  secondsPerQuestionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'secondsPerQuestion', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  secondsPerQuestionGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'secondsPerQuestion',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  secondsPerQuestionLessThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'secondsPerQuestion',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  secondsPerQuestionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'secondsPerQuestion',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> soundEnabledEqualTo(
-      bool value) {
+    bool value,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'soundEnabled',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'soundEnabled', value: value),
+      );
     });
   }
 
   QueryBuilder<Settings, Settings, QAfterFilterCondition> themeEqualTo(
-      ThemeMode value) {
+    ThemeMode value,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'theme',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'theme', value: value),
+      );
     });
   }
 
@@ -487,11 +793,13 @@ extension SettingsQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'theme',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'theme',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -500,11 +808,13 @@ extension SettingsQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'theme',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'theme',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -515,13 +825,15 @@ extension SettingsQueryFilter
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'theme',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'theme',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -545,6 +857,32 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCurrentStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCurrentStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByDailyChallengeCompletedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dailyChallengeCompletedOn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  sortByDailyChallengeCompletedOnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dailyChallengeCompletedOn', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByHapticsEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hapticsEnabled', Sort.asc);
@@ -557,6 +895,30 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByLastPlayedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastPlayedOn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByLastPlayedOnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastPlayedOn', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByLongestStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByLongestStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByQuestionBankVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'questionBankVersion', Sort.asc);
@@ -564,7 +926,7 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   }
 
   QueryBuilder<Settings, Settings, QAfterSortBy>
-      sortByQuestionBankVersionDesc() {
+  sortByQuestionBankVersionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'questionBankVersion', Sort.desc);
     });
@@ -577,7 +939,7 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   }
 
   QueryBuilder<Settings, Settings, QAfterSortBy>
-      sortBySecondsPerQuestionDesc() {
+  sortBySecondsPerQuestionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'secondsPerQuestion', Sort.desc);
     });
@@ -622,6 +984,32 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCurrentStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCurrentStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'currentStreak', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByDailyChallengeCompletedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dailyChallengeCompletedOn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+  thenByDailyChallengeCompletedOnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'dailyChallengeCompletedOn', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByHapticsEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'hapticsEnabled', Sort.asc);
@@ -646,6 +1034,30 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByLastPlayedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastPlayedOn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByLastPlayedOnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastPlayedOn', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByLongestStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByLongestStreakDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'longestStreak', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByQuestionBankVersion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'questionBankVersion', Sort.asc);
@@ -653,7 +1065,7 @@ extension SettingsQuerySortThenBy
   }
 
   QueryBuilder<Settings, Settings, QAfterSortBy>
-      thenByQuestionBankVersionDesc() {
+  thenByQuestionBankVersionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'questionBankVersion', Sort.desc);
     });
@@ -666,7 +1078,7 @@ extension SettingsQuerySortThenBy
   }
 
   QueryBuilder<Settings, Settings, QAfterSortBy>
-      thenBySecondsPerQuestionDesc() {
+  thenBySecondsPerQuestionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'secondsPerQuestion', Sort.desc);
     });
@@ -705,9 +1117,34 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCurrentStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'currentStreak');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct>
+  distinctByDailyChallengeCompletedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'dailyChallengeCompletedOn');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByHapticsEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'hapticsEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByLastPlayedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastPlayedOn');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByLongestStreak() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'longestStreak');
     });
   }
 
@@ -750,9 +1187,34 @@ extension SettingsQueryProperty
     });
   }
 
+  QueryBuilder<Settings, int, QQueryOperations> currentStreakProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'currentStreak');
+    });
+  }
+
+  QueryBuilder<Settings, DateTime?, QQueryOperations>
+  dailyChallengeCompletedOnProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'dailyChallengeCompletedOn');
+    });
+  }
+
   QueryBuilder<Settings, bool, QQueryOperations> hapticsEnabledProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'hapticsEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, DateTime?, QQueryOperations> lastPlayedOnProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastPlayedOn');
+    });
+  }
+
+  QueryBuilder<Settings, int, QQueryOperations> longestStreakProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'longestStreak');
     });
   }
 

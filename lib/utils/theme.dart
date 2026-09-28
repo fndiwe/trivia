@@ -6,7 +6,18 @@ class AppColors {
 
   static const Color seedLight = Color.fromARGB(255, 2, 78, 139);
   static const Color seedDark = Color.fromARGB(255, 0, 100, 182);
+
+  /// Green used for a correct answer in the light theme.
   static const Color correct = Color(0xFF2E7D32);
+
+  /// Lighter green for the dark theme, where [correct] would sit too close to
+  /// the dark surface to read comfortably.
+  static const Color correctDark = Color(0xFF66BB6A);
+
+  /// The correct-answer colour for [theme], with enough contrast on its own
+  /// surface in either brightness.
+  static Color correctFor(ThemeData theme) =>
+      theme.brightness == Brightness.dark ? correctDark : correct;
 }
 
 /// Builds the light theme. Material 3 + the bundled Nunito font.

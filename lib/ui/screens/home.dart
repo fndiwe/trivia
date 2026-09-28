@@ -1,14 +1,19 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:trivia/models/category.dart';
 import 'package:trivia/models/level.dart';
+import 'package:trivia/models/quiz_request.dart';
 import 'package:trivia/provider/home.dart';
 import 'package:trivia/provider/settings.dart';
 import 'package:trivia/ui/screens/splash.dart';
 import 'package:trivia/ui/widgets/category_card.dart';
+import 'package:trivia/ui/widgets/daily_challenge_card.dart';
 import 'package:trivia/ui/widgets/level_card.dart';
 import 'package:trivia/ui/widgets/styled_top_tabs.dart';
+import 'package:trivia/utils/dates.dart';
 import 'package:trivia/utils/routes.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,6 +55,9 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final homeProvider = context.watch<HomeProvider>();
+    final streak = context.select<SettingsProvider, int>(
+      (provider) => provider.settings.currentStreak,
+    );
 
     return PopScope(
       canPop: false,
@@ -61,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen>
                 appBar: AppBar(
                   automaticallyImplyLeading: false,
                   toolbarHeight: 80,
-                  actionsPadding: const EdgeInsets.only(right: 16),
+                  actionsPadding: const EdgeInsets.only(right: 12),
                   titleSpacing: 30,
                   title: Text(
                     'TriviaHQ',
@@ -70,6 +78,13 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                   actions: [
+                    if (streak > 0) StreakBadge(streak: streak),
+                    IconButton(
+                      tooltip: 'Statistics',
+                      icon: const Icon(Icons.insights_outlined),
+                      onPressed:
+                          () => Navigator.of(context).pushNamed(Routes.stats),
+                    ),
                     IconButton(
                       tooltip: 'Settings',
                       icon: const Icon(Icons.settings),
@@ -102,8 +117,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-/// Level grid. Locked levels explain how to unlock instead of silently doing
-/// nothing when tapped.
+/// Level grid, preceded by the daily challenge and the practice entry point.
 class _LevelsTab extends StatelessWidget {
   const _LevelsTab();
 
@@ -113,21 +127,66 @@ class _LevelsTab extends StatelessWidget {
     if (levels.isEmpty) {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
-    return GridView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 38, horizontal: 16),
-      itemCount: levels.length,
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        mainAxisSpacing: 32,
-        crossAxisSpacing: 16,
-        maxCrossAxisExtent: 150,
-      ),
-      itemBuilder: (context, index) {
-        final level = levels[index];
-        return LevelCard(
-          level: level,
-          onPress: () => _openLevel(context, level),
-        );
-      },
+
+    final practiceCount = context.select<HomeProvider, int>(
+      (provider) => provider.practiceCount,
+    );
+    final dailyDone = context.select<SettingsProvider, bool>((provider) {
+      final done = provider.settings.dailyChallengeCompletedOn;
+      return done != null && isSameLocalDay(done, DateTime.now());
+    });
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          sliver: SliverList.list(
+            children: [
+              DailyChallengeCard(
+                done: dailyDone,
+                onPlay:
+                    () => Navigator.of(context).pushNamed(
+                      Routes.gameplay,
+                      arguments: const QuizRequest.daily(),
+                    ),
+              ),
+              if (practiceCount > 0) ...[
+                const SizedBox(height: 12),
+                PracticeCard(
+                  count: practiceCount,
+                  onPlay:
+                      () => Navigator.of(context).pushNamed(
+                        Routes.gameplay,
+                        arguments: const QuizRequest.practice(),
+                      ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+          sliver: SliverGrid.builder(
+            itemCount: levels.length,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              mainAxisSpacing: 32,
+              crossAxisSpacing: 16,
+              maxCrossAxisExtent: 150,
+              // Grow the cells with the user's font size instead of letting the
+              // pentagon labels overflow at large accessibility scales.
+              mainAxisExtent: (150 * scale).clamp(150, 240),
+            ),
+            itemBuilder: (context, index) {
+              final level = levels[index];
+              return LevelCard(
+                level: level,
+                onPress: () => _openLevel(context, level),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -145,7 +204,9 @@ class _LevelsTab extends StatelessWidget {
         );
       return;
     }
-    Navigator.of(context).pushNamed(Routes.gameplay, arguments: level);
+    Navigator.of(
+      context,
+    ).pushNamed(Routes.gameplay, arguments: QuizRequest.level(level));
   }
 }
 
@@ -157,32 +218,38 @@ class _CategoriesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categories = context.watch<HomeProvider>().categories;
-    final roundSize = context.select<SettingsProvider, int>(
-      (provider) => provider.settings.categoryRoundSize,
-    );
     if (categories.isEmpty) {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
+
+    final roundSize = context.select<SettingsProvider, int>(
+      (provider) => provider.settings.categoryRoundSize,
+    );
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+
     return GridView.builder(
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       itemCount: categories.length,
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
         maxCrossAxisExtent: 175,
-        childAspectRatio: 0.9,
+        mainAxisExtent: (190 * scale).clamp(190, 320),
       ),
       itemBuilder: (context, index) {
         final category = categories[index];
         return CategoryCard(
           category: category,
           roundSize: roundSize,
-          onPress:
-              () => Navigator.of(
-                context,
-              ).pushNamed(Routes.gameplay, arguments: category),
+          onPress: () => _openCategory(context, category),
         );
       },
     );
+  }
+
+  void _openCategory(BuildContext context, Category category) {
+    Navigator.of(
+      context,
+    ).pushNamed(Routes.gameplay, arguments: QuizRequest.category(category));
   }
 }

@@ -3,6 +3,7 @@ import 'package:isar/isar.dart';
 import 'package:trivia/models/category.dart';
 import 'package:trivia/models/level.dart';
 import 'package:trivia/repository/repository.dart';
+import 'package:trivia/repository/stats_repository.dart';
 
 /// Backing store for the home screen: the level grid on the first tab and the
 /// category grid on the second.
@@ -10,6 +11,9 @@ class HomeProvider extends ChangeNotifier {
   bool showSplash = true;
   List<Level> levels = <Level>[];
   List<Category> categories = <Category>[];
+
+  /// Questions waiting in the "practise your mistakes" queue.
+  int practiceCount = 0;
 
   bool _disposed = false;
 
@@ -36,7 +40,15 @@ class HomeProvider extends ChangeNotifier {
   }
 
   /// Loads both tabs in parallel.
-  Future<void> loadAll() => Future.wait([loadLevels(), loadCategories()]);
+  /// Loads the practice-queue size shown on the home screen.
+  Future<void> loadPracticeCount() async {
+    practiceCount = (await StatsRepository.practiceQueue()).length;
+    _safeNotify();
+  }
+
+  /// Loads the level list, the category list and the practice-queue size.
+  Future<void> loadAll() =>
+      Future.wait([loadLevels(), loadCategories(), loadPracticeCount()]);
 
   /// Leaves the splash screen and shows the home tabs.
   void finishSplash() {

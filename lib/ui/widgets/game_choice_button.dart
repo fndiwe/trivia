@@ -19,6 +19,9 @@ enum ChoiceStatus {
 
   /// Neither picked nor correct, dimmed after the answer is revealed.
   muted,
+
+  /// Removed from play by the 50:50 lifeline. Struck out and not tappable.
+  eliminated,
 }
 
 class GameChoiceButton extends StatelessWidget {
@@ -67,6 +70,12 @@ class GameChoiceButton extends StatelessWidget {
         scheme.onSurface.withValues(alpha: 0.45),
         scheme.outline.withValues(alpha: 0.4),
         null,
+      ),
+      ChoiceStatus.eliminated => (
+        Colors.transparent,
+        scheme.onSurface.withValues(alpha: 0.35),
+        scheme.outline.withValues(alpha: 0.25),
+        Icons.block,
       ),
     };
 

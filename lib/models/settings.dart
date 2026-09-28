@@ -29,6 +29,19 @@ class Settings {
   /// `assets/trivia.json` is imported instead of silently ignored.
   int questionBankVersion = 0;
 
+  /// Local day of the most recent completed round.
+  DateTime? lastPlayedOn;
+
+  /// Consecutive days played, including today while today's round is running.
+  int currentStreak = 0;
+
+  /// Best streak ever reached.
+  int longestStreak = 0;
+
+  /// Local day the daily challenge was last finished, so the home screen knows
+  /// whether today's is still open.
+  DateTime? dailyChallengeCompletedOn;
+
   Settings({
     this.id = 1,
     this.theme = ThemeMode.system,
@@ -37,6 +50,10 @@ class Settings {
     this.categoryRoundSize = defaultCategoryRoundSize,
     this.secondsPerQuestion = defaultSecondsPerQuestion,
     this.questionBankVersion = 0,
+    this.lastPlayedOn,
+    this.currentStreak = 0,
+    this.longestStreak = 0,
+    this.dailyChallengeCompletedOn,
   });
 
   Settings copyWith({
@@ -46,6 +63,10 @@ class Settings {
     int? categoryRoundSize,
     int? secondsPerQuestion,
     int? questionBankVersion,
+    DateTime? lastPlayedOn,
+    int? currentStreak,
+    int? longestStreak,
+    DateTime? dailyChallengeCompletedOn,
   }) => Settings(
     id: id,
     theme: theme ?? this.theme,
@@ -54,5 +75,10 @@ class Settings {
     categoryRoundSize: categoryRoundSize ?? this.categoryRoundSize,
     secondsPerQuestion: secondsPerQuestion ?? this.secondsPerQuestion,
     questionBankVersion: questionBankVersion ?? this.questionBankVersion,
+    lastPlayedOn: lastPlayedOn ?? this.lastPlayedOn,
+    currentStreak: currentStreak ?? this.currentStreak,
+    longestStreak: longestStreak ?? this.longestStreak,
+    dailyChallengeCompletedOn:
+        dailyChallengeCompletedOn ?? this.dailyChallengeCompletedOn,
   );
 }

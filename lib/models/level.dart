@@ -11,6 +11,8 @@ class Level {
 
   Level({required this.id, this.score});
 
+  /// Derived from [score]; not a stored column.
+  @ignore
   bool get isUnlocked => score != null || id == 1;
 
   Level changeScore(int score) => this..score = score;

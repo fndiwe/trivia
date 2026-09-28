@@ -1,6 +1,8 @@
 import 'package:isar/isar.dart';
 import 'package:trivia/models/category.dart';
 import 'package:trivia/models/level.dart';
+import 'package:trivia/models/question_stat.dart';
+import 'package:trivia/models/round_result.dart';
 import 'package:trivia/models/settings.dart';
 import 'package:trivia/models/trivia.dart';
 
@@ -12,6 +14,16 @@ import 'package:trivia/models/trivia.dart';
 /// which schemas the app needs.
 class Repository {
   Repository._();
+
+  /// Every schema the app persists. Public so tests can open the same set.
+  static const List<CollectionSchema<dynamic>> schemas = [
+    TriviaSchema,
+    LevelSchema,
+    CategorySchema,
+    SettingsSchema,
+    QuestionStatSchema,
+    RoundResultSchema,
+  ];
 
   static Isar? _isar;
 

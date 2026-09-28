@@ -14,7 +14,11 @@ class Trivia {
   @Index()
   final int level;
 
+  /// Indexed so per-question statistics can be looked up by text (see
+  /// `QuestionStat`), which keeps them stable across re-imports.
+  @Index()
   final String question;
+
   final String answer;
   final List<String> choices;
 

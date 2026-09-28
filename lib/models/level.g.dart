@@ -17,16 +17,7 @@ const LevelSchema = CollectionSchema(
   name: r'Level',
   id: 9002186168469810689,
   properties: {
-    r'isUnlocked': PropertySchema(
-      id: 0,
-      name: r'isUnlocked',
-      type: IsarType.bool,
-    ),
-    r'score': PropertySchema(
-      id: 1,
-      name: r'score',
-      type: IsarType.long,
-    )
+    r'score': PropertySchema(id: 0, name: r'score', type: IsarType.long),
   },
   estimateSize: _levelEstimateSize,
   serialize: _levelSerialize,
@@ -57,8 +48,7 @@ void _levelSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeBool(offsets[0], object.isUnlocked);
-  writer.writeLong(offsets[1], object.score);
+  writer.writeLong(offsets[0], object.score);
 }
 
 Level _levelDeserialize(
@@ -67,10 +57,7 @@ Level _levelDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Level(
-    id: id,
-    score: reader.readLongOrNull(offsets[1]),
-  );
+  final object = Level(id: id, score: reader.readLongOrNull(offsets[0]));
   return object;
 }
 
@@ -82,8 +69,6 @@ P _levelDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readBool(offset)) as P;
-    case 1:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -111,10 +96,7 @@ extension LevelQueryWhereSort on QueryBuilder<Level, Level, QWhere> {
 extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
   QueryBuilder<Level, Level, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
     });
   }
 
@@ -140,8 +122,10 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
     });
   }
 
-  QueryBuilder<Level, Level, QAfterWhereClause> idGreaterThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Level, Level, QAfterWhereClause> idGreaterThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -149,8 +133,10 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
     });
   }
 
-  QueryBuilder<Level, Level, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Level, Level, QAfterWhereClause> idLessThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -165,12 +151,14 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -178,10 +166,9 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
 extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
   QueryBuilder<Level, Level, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
     });
   }
 
@@ -190,11 +177,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -203,11 +192,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -218,48 +209,39 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Level, Level, QAfterFilterCondition> isUnlockedEqualTo(
-      bool value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isUnlocked',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Level, Level, QAfterFilterCondition> scoreIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'score',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'score'),
+      );
     });
   }
 
   QueryBuilder<Level, Level, QAfterFilterCondition> scoreIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'score',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'score'),
+      );
     });
   }
 
   QueryBuilder<Level, Level, QAfterFilterCondition> scoreEqualTo(int? value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'score',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'score', value: value),
+      );
     });
   }
 
@@ -268,11 +250,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'score',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'score',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -281,11 +265,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'score',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'score',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -296,13 +282,15 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'score',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'score',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -312,18 +300,6 @@ extension LevelQueryObject on QueryBuilder<Level, Level, QFilterCondition> {}
 extension LevelQueryLinks on QueryBuilder<Level, Level, QFilterCondition> {}
 
 extension LevelQuerySortBy on QueryBuilder<Level, Level, QSortBy> {
-  QueryBuilder<Level, Level, QAfterSortBy> sortByIsUnlocked() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isUnlocked', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Level, Level, QAfterSortBy> sortByIsUnlockedDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isUnlocked', Sort.desc);
-    });
-  }
-
   QueryBuilder<Level, Level, QAfterSortBy> sortByScore() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'score', Sort.asc);
@@ -350,18 +326,6 @@ extension LevelQuerySortThenBy on QueryBuilder<Level, Level, QSortThenBy> {
     });
   }
 
-  QueryBuilder<Level, Level, QAfterSortBy> thenByIsUnlocked() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isUnlocked', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Level, Level, QAfterSortBy> thenByIsUnlockedDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isUnlocked', Sort.desc);
-    });
-  }
-
   QueryBuilder<Level, Level, QAfterSortBy> thenByScore() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'score', Sort.asc);
@@ -376,12 +340,6 @@ extension LevelQuerySortThenBy on QueryBuilder<Level, Level, QSortThenBy> {
 }
 
 extension LevelQueryWhereDistinct on QueryBuilder<Level, Level, QDistinct> {
-  QueryBuilder<Level, Level, QDistinct> distinctByIsUnlocked() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'isUnlocked');
-    });
-  }
-
   QueryBuilder<Level, Level, QDistinct> distinctByScore() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'score');
@@ -393,12 +351,6 @@ extension LevelQueryProperty on QueryBuilder<Level, Level, QQueryProperty> {
   QueryBuilder<Level, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<Level, bool, QQueryOperations> isUnlockedProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'isUnlocked');
     });
   }
 
