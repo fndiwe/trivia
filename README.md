@@ -79,8 +79,9 @@ flutter test
 dart format $(git ls-files 'lib' 'test' | grep '\.dart$' | grep -v '\.g\.dart$')
 ```
 
-CI (`.github/workflows/ci.yml`) runs exactly these steps, and also fails when
-the generated schemas are out of date.
+CI runs exactly these steps, and also fails when the generated schemas are out
+of date. The pipeline lives in [`docs/ci.yml`](docs/ci.yml): copy it to
+`.github/workflows/ci.yml` to enable it on GitHub.
 
 ## Updating the question bank
 

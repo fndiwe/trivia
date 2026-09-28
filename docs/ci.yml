@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Analyze, format and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify generated Isar schemas are committed
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          git diff --exit-code -- '**/*.g.dart'
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Check formatting of hand-written Dart
+        run: |
+          FILES=$(git ls-files 'lib' 'test' | grep '\.dart$' | grep -v '\.g\.dart$')
+          dart format --output=none --set-exit-if-changed $FILES
+
+      - name: Run tests
+        run: flutter test
