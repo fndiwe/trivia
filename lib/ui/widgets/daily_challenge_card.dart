@@ -150,6 +150,7 @@ class StreakBadge extends StatelessWidget {
     final theme = Theme.of(context);
     return Semantics(
       label: context.l10n.streakSemantics(streak),
+      excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(

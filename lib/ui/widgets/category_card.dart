@@ -31,6 +31,7 @@ class CategoryCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: context.l10n.categoryLabel(category.categoryId),
+      excludeSemantics: true,
       child: GestureDetector(
         onTap: onPress,
         child: Stack(

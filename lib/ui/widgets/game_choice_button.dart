@@ -84,6 +84,7 @@ class GameChoiceButton extends StatelessWidget {
       enabled: onPressed != null,
       label: label,
       selected: status != ChoiceStatus.idle,
+      excludeSemantics: true,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeInOut,
