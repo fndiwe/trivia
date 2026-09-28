@@ -31,10 +31,12 @@ class Repository {
   /// Opens every schema the app uses and exposes the instance through
   /// [Repository.isar].
   static Future<Isar> init({required String directory}) async {
-    final instance = await Isar.open(
-      [TriviaSchema, LevelSchema, CategorySchema, SettingsSchema],
-      directory: directory,
-    );
+    final instance = await Isar.open([
+      TriviaSchema,
+      LevelSchema,
+      CategorySchema,
+      SettingsSchema,
+    ], directory: directory);
     _isar = instance;
     return instance;
   }

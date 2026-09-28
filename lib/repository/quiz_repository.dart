@@ -31,10 +31,8 @@ class QuizRepository {
     Random? random,
   }) async {
     final isar = Repository.isar;
-    final pool = await isar.trivias
-        .filter()
-        .categoryEqualTo(categoryId)
-        .findAll();
+    final pool =
+        await isar.trivias.filter().categoryEqualTo(categoryId).findAll();
     return pickRandom(pool, count, random: random);
   }
 

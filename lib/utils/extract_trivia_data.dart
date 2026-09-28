@@ -69,10 +69,11 @@ Future<void> extractDataToDatabase() async {
 
     final categories = Categories.categories;
     for (final category in categories) {
-      final numberOfQuestions = await isar.trivias
-          .filter()
-          .categoryEqualTo(category.categoryId)
-          .count();
+      final numberOfQuestions =
+          await isar.trivias
+              .filter()
+              .categoryEqualTo(category.categoryId)
+              .count();
       await isar.categorys.put(
         Category(
           categoryId: category.categoryId,
@@ -84,4 +85,3 @@ Future<void> extractDataToDatabase() async {
     }
   });
 }
-

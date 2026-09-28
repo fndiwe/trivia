@@ -43,7 +43,8 @@ class GamePlayScreen extends StatefulWidget {
   State<GamePlayScreen> createState() => _GamePlayScreenState();
 }
 
-class _GamePlayScreenState extends State<GamePlayScreen> {
+class _GamePlayScreenState extends State<GamePlayScreen>
+    with WidgetsBindingObserver {
   final Random _random = Random();
   late final AudioPlayer _audioPlayer;
 
@@ -52,6 +53,12 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
 
   List<Trivia> _questions = const <Trivia>[];
   List<ChoiceStatus> _statuses = const <ChoiceStatus>[];
+
+  /// Choices for the current question, reshuffled every time it is shown.
+  ///
+  /// The question bank lists the correct answer in a fixed position, so without
+  /// this a player could learn "the third one is right" instead of the answer.
+  List<String> _choices = const <String>[];
 
   int _currentQuestion = 0;
   int _score = 0;
@@ -76,6 +83,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final item = widget.item;
     if (item is Level) {
       _level = item;
@@ -89,9 +97,8 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
     _secondsPerQuestion = settings.secondsPerQuestion;
     // Campaign levels are fixed length; free-play categories honour the
     // "questions per round" preference.
-    _roundSize = _category != null
-        ? settings.categoryRoundSize
-        : questionsPerLevel;
+    _roundSize =
+        _category != null ? settings.categoryRoundSize : questionsPerLevel;
 
     _audioPlayer = AudioPlayer();
 
@@ -105,9 +112,26 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  /// Pause the countdown when the app leaves the foreground.
+  ///
+  /// Dart timers keep firing while the app is backgrounded, so without this the
+  /// round could advance (or even finish) while the player was not looking.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      if (!_answered && !_loading && !_navigatedToResult && !_dialogOpen) {
+        _startTimer();
+      }
+      return;
+    }
+    _timer?.cancel();
   }
 
   // ---------------------------------------------------------------------------
@@ -159,15 +183,15 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
   void _prepareQuestion() {
     _answered = false;
     _secondsLeft = _secondsPerQuestion;
-    _statuses = List<ChoiceStatus>.filled(
-      _trivia.choices.length,
-      ChoiceStatus.idle,
-    );
+    // Reshuffle so the correct answer is not always in the authored position.
+    _choices = List<String>.of(_trivia.choices)..shuffle(_random);
+    _statuses = List<ChoiceStatus>.filled(_choices.length, ChoiceStatus.idle);
   }
 
   void _startTimer() {
     _timer?.cancel();
-    if (!_timerEnabled) return;
+    // Nothing to count down for when the round is empty or timed out.
+    if (!_timerEnabled || _questions.isEmpty) return;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -195,7 +219,7 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
     _answered = true;
     _timer?.cancel();
 
-    final choices = _trivia.choices;
+    final choices = _choices;
     final correctIndex = choices.indexOf(_trivia.answer);
     final isCorrect = selected != null && selected == correctIndex;
 
@@ -241,13 +265,14 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
     _timer?.cancel();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
-        builder: (_) => ResultScreen(
-          score: _score,
-          total: _questions.length,
-          resultSoundAsset: resultSoundAsset(_score, _questions.length),
-          levelId: _level?.id,
-          categoryId: _category?.categoryId,
-        ),
+        builder:
+            (_) => ResultScreen(
+              score: _score,
+              total: _questions.length,
+              resultSoundAsset: resultSoundAsset(_score, _questions.length),
+              levelId: _level?.id,
+              categoryId: _category?.categoryId,
+            ),
       ),
     );
   }
@@ -389,13 +414,14 @@ class _GamePlayScreenState extends State<GamePlayScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-                for (final (index, choice) in _trivia.choices.indexed) ...[
+                for (final (index, choice) in _choices.indexed) ...[
                   if (index > 0) const SizedBox(height: 16),
                   GameChoiceButton(
                     label: choice,
-                    status: _statuses.length > index
-                        ? _statuses[index]
-                        : ChoiceStatus.idle,
+                    status:
+                        _statuses.length > index
+                            ? _statuses[index]
+                            : ChoiceStatus.idle,
                     onPressed: _answered ? null : () => _onChoiceTap(index),
                   ),
                 ],
@@ -445,12 +471,10 @@ class _CountdownBar extends StatelessWidget {
     }
 
     final isUrgent = secondsLeft <= _urgentThreshold;
-    final color = isUrgent
-        ? theme.colorScheme.error
-        : theme.colorScheme.primary;
-    final progress = secondsTotal <= 0
-        ? 0.0
-        : (secondsLeft / secondsTotal).clamp(0.0, 1.0);
+    final color =
+        isUrgent ? theme.colorScheme.error : theme.colorScheme.primary;
+    final progress =
+        secondsTotal <= 0 ? 0.0 : (secondsLeft / secondsTotal).clamp(0.0, 1.0);
 
     return Semantics(
       label: 'Time remaining',
@@ -525,4 +549,3 @@ class _CenteredMessage extends StatelessWidget {
     );
   }
 }
-

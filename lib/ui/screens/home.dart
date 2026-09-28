@@ -54,48 +54,50 @@ class _HomeScreenState extends State<HomeScreen>
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: _handleBack,
-      child: homeProvider.showSplash
-          ? const SplashScreen()
-          : Scaffold(
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                toolbarHeight: 80,
-                actionsPadding: const EdgeInsets.only(right: 16),
-                titleSpacing: 30,
-                title: Text(
-                  'TriviaHQ',
-                  style: theme.textTheme.headlineSmall!.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                actions: [
-                  IconButton(
-                    tooltip: 'Settings',
-                    icon: const Icon(Icons.settings),
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed(Routes.settings),
-                  ),
-                ],
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(55),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 8,
-                      left: 38,
-                      right: 38,
-                    ),
-                    child: StyledTopTabs(
-                      tabController: _tabController,
-                      tabs: _tabs,
+      child:
+          homeProvider.showSplash
+              ? const SplashScreen()
+              : Scaffold(
+                appBar: AppBar(
+                  automaticallyImplyLeading: false,
+                  toolbarHeight: 80,
+                  actionsPadding: const EdgeInsets.only(right: 16),
+                  titleSpacing: 30,
+                  title: Text(
+                    'TriviaHQ',
+                    style: theme.textTheme.headlineSmall!.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                  actions: [
+                    IconButton(
+                      tooltip: 'Settings',
+                      icon: const Icon(Icons.settings),
+                      onPressed:
+                          () =>
+                              Navigator.of(context).pushNamed(Routes.settings),
+                    ),
+                  ],
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(55),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 8,
+                        left: 38,
+                        right: 38,
+                      ),
+                      child: StyledTopTabs(
+                        tabController: _tabController,
+                        tabs: _tabs,
+                      ),
+                    ),
+                  ),
+                ),
+                body: TabBarView(
+                  controller: _tabController,
+                  children: const [_LevelsTab(), _CategoriesTab()],
                 ),
               ),
-              body: TabBarView(
-                controller: _tabController,
-                children: const [_LevelsTab(), _CategoriesTab()],
-              ),
-            ),
     );
   }
 }
@@ -175,12 +177,12 @@ class _CategoriesTab extends StatelessWidget {
         return CategoryCard(
           category: category,
           roundSize: roundSize,
-          onPress: () => Navigator.of(
-            context,
-          ).pushNamed(Routes.gameplay, arguments: category),
+          onPress:
+              () => Navigator.of(
+                context,
+              ).pushNamed(Routes.gameplay, arguments: category),
         );
       },
     );
   }
 }
-

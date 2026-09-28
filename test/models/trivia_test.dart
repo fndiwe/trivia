@@ -76,12 +76,13 @@ void main() {
 
   group('withLevel', () {
     test('returns a copy carrying the level without mutating the original', () {
-      final trivia = Trivia.tryFromMap({
-        'question': 'Q',
-        'category': 'c',
-        'answer': 'a',
-        'choices': ['a', 'b'],
-      })!;
+      final trivia =
+          Trivia.tryFromMap({
+            'question': 'Q',
+            'category': 'c',
+            'answer': 'a',
+            'choices': ['a', 'b'],
+          })!;
 
       final leveled = trivia.withLevel(7);
 

@@ -52,17 +52,17 @@ void main() {
       // primaryContainer while keeping the default dark onPrimaryContainer,
       // which made the tab labels nearly invisible.
       final scheme = buildLightTheme().colorScheme;
-      expect(
-        scheme.onPrimaryContainer,
-        isNot(equals(scheme.primaryContainer)),
-      );
+      expect(scheme.onPrimaryContainer, isNot(equals(scheme.primaryContainer)));
     });
   });
 
   group('overlayIconBrightness', () {
-    test('uses light icons on a dark surface and dark icons on a light one', () {
-      expect(overlayIconBrightness(buildDarkTheme()), Brightness.light);
-      expect(overlayIconBrightness(buildLightTheme()), Brightness.dark);
-    });
+    test(
+      'uses light icons on a dark surface and dark icons on a light one',
+      () {
+        expect(overlayIconBrightness(buildDarkTheme()), Brightness.light);
+        expect(overlayIconBrightness(buildLightTheme()), Brightness.dark);
+      },
+    );
   });
 }

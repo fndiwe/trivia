@@ -36,8 +36,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   /// Loads both tabs in parallel.
-  Future<void> loadAll() =>
-      Future.wait([loadLevels(), loadCategories()]);
+  Future<void> loadAll() => Future.wait([loadLevels(), loadCategories()]);
 
   /// Leaves the splash screen and shows the home tabs.
   void finishSplash() {
@@ -78,4 +77,3 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 }
-

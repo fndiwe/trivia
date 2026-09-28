@@ -81,15 +81,19 @@ class _LevelCardState extends State<LevelCard>
         Semantics(
           button: true,
           enabled: unlocked,
-          label: unlocked
-              ? 'Level ${widget.level.id}'
-              : 'Level ${widget.level.id}, locked',
+          label:
+              unlocked
+                  ? 'Level ${widget.level.id}'
+                  : 'Level ${widget.level.id}, locked',
           child: GestureDetector(
             onTap: unlocked ? widget.onPress : null,
             child: AnimatedBuilder(
               animation: _animCtrl,
-              builder: (context, child) =>
-                  Transform.scale(scale: 1.0 + (_animCtrl.value * 0.08), child: child),
+              builder:
+                  (context, child) => Transform.scale(
+                    scale: 1.0 + (_animCtrl.value * 0.08),
+                    child: child,
+                  ),
               child: Stack(
                 fit: StackFit.expand,
                 alignment: Alignment.center,
@@ -122,9 +126,7 @@ class _LevelCardState extends State<LevelCard>
                         ),
                       ),
                       Text(
-                        NumberFormat()
-                            .format(widget.level.id)
-                            .padLeft(2, '0'),
+                        NumberFormat().format(widget.level.id).padLeft(2, '0'),
                         style: TextStyle(
                           color: theme.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,

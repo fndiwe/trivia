@@ -28,9 +28,8 @@ void main() {
 
     final context = tester.element(find.byType(RatingStars));
     final highlight = Theme.of(context).colorScheme.primary;
-    final icons = tester
-        .widgetList<Icon>(find.byIcon(Icons.star_rate_rounded))
-        .toList();
+    final icons =
+        tester.widgetList<Icon>(find.byIcon(Icons.star_rate_rounded)).toList();
 
     expect(icons.every((icon) => icon.color == highlight), isTrue);
   });
@@ -42,11 +41,13 @@ void main() {
 
     final context = tester.element(find.byType(RatingStars));
     final scheme = Theme.of(context).colorScheme;
-    final icons = tester
-        .widgetList<Icon>(find.byIcon(Icons.star_rate_rounded))
-        .toList();
+    final icons =
+        tester.widgetList<Icon>(find.byIcon(Icons.star_rate_rounded)).toList();
 
-    expect(icons.every((icon) => icon.color == scheme.primaryContainer), isTrue);
+    expect(
+      icons.every((icon) => icon.color == scheme.primaryContainer),
+      isTrue,
+    );
   });
 
   testWidgets('does not throw for an empty round', (tester) async {

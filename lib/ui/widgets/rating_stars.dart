@@ -32,9 +32,10 @@ class RatingStars extends StatelessWidget {
           for (var i = 0; i < maxStars; i++)
             Icon(
               Icons.star_rate_rounded,
-              color: i < earned
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.primaryContainer,
+              color:
+                  i < earned
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.primaryContainer,
               size: size,
             ),
         ],
@@ -42,4 +43,3 @@ class RatingStars extends StatelessWidget {
     );
   }
 }
-

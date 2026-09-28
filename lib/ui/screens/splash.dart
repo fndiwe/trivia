@@ -83,10 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 28),
               if (_error == null)
-                const SizedBox(
-                  width: 160,
-                  child: LinearProgressIndicator(),
-                )
+                const SizedBox(width: 160, child: LinearProgressIndicator())
               else ...[
                 Icon(
                   Icons.error_outline,
@@ -115,4 +112,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-

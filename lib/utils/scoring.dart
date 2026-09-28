@@ -37,9 +37,10 @@ int starsFor(int score, int total) {
 }
 
 /// The end-of-round sting: a cheer for a good result, a soft "aww" otherwise.
-String resultSoundAsset(int score, int total) => starsFor(score, total) >= 2
-    ? 'assets/audio/applause.mp3'
-    : 'assets/audio/aww.mp3';
+String resultSoundAsset(int score, int total) =>
+    starsFor(score, total) >= 2
+        ? 'assets/audio/applause.mp3'
+        : 'assets/audio/aww.mp3';
 
 /// Number of questions a round actually contains, accounting for pools that
 /// are smaller than the configured round size (small categories, final level).

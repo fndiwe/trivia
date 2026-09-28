@@ -38,33 +38,37 @@ class GameChoiceButton extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    final (Color background, Color foreground, Color border, IconData? icon) =
-        switch (status) {
-          ChoiceStatus.idle => (
-            Colors.transparent,
-            scheme.onSurface,
-            scheme.outline,
-            null,
-          ),
-          ChoiceStatus.correct => (
-            AppColors.correct,
-            Colors.white,
-            AppColors.correct,
-            Icons.check_rounded,
-          ),
-          ChoiceStatus.wrong => (
-            scheme.errorContainer,
-            scheme.onErrorContainer,
-            scheme.error,
-            Icons.close_rounded,
-          ),
-          ChoiceStatus.muted => (
-            Colors.transparent,
-            scheme.onSurface.withValues(alpha: 0.45),
-            scheme.outline.withValues(alpha: 0.4),
-            null,
-          ),
-        };
+    final (
+      Color background,
+      Color foreground,
+      Color border,
+      IconData? icon,
+    ) = switch (status) {
+      ChoiceStatus.idle => (
+        Colors.transparent,
+        scheme.onSurface,
+        scheme.outline,
+        null,
+      ),
+      ChoiceStatus.correct => (
+        AppColors.correct,
+        Colors.white,
+        AppColors.correct,
+        Icons.check_rounded,
+      ),
+      ChoiceStatus.wrong => (
+        scheme.errorContainer,
+        scheme.onErrorContainer,
+        scheme.error,
+        Icons.close_rounded,
+      ),
+      ChoiceStatus.muted => (
+        Colors.transparent,
+        scheme.onSurface.withValues(alpha: 0.45),
+        scheme.outline.withValues(alpha: 0.4),
+        null,
+      ),
+    };
 
     return Semantics(
       button: true,
@@ -81,7 +85,9 @@ class GameChoiceButton extends StatelessWidget {
         ),
         child: FilledButton(
           style: ButtonStyle(
-            minimumSize: const WidgetStatePropertyAll(Size(double.infinity, 56)),
+            minimumSize: const WidgetStatePropertyAll(
+              Size(double.infinity, 56),
+            ),
             // The colour lives on the animated container above; keep the
             // button itself transparent so the transition is visible.
             backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -124,4 +130,3 @@ class GameChoiceButton extends StatelessWidget {
     );
   }
 }
-
