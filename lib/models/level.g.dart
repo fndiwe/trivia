@@ -17,8 +17,13 @@ const LevelSchema = CollectionSchema(
   name: r'Level',
   id: 9002186168469810689,
   properties: {
-    r'score': PropertySchema(
+    r'isUnlocked': PropertySchema(
       id: 0,
+      name: r'isUnlocked',
+      type: IsarType.bool,
+    ),
+    r'score': PropertySchema(
+      id: 1,
       name: r'score',
       type: IsarType.long,
     )
@@ -52,7 +57,8 @@ void _levelSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.score);
+  writer.writeBool(offsets[0], object.isUnlocked);
+  writer.writeLong(offsets[1], object.score);
 }
 
 Level _levelDeserialize(
@@ -63,7 +69,7 @@ Level _levelDeserialize(
 ) {
   final object = Level(
     id: id,
-    score: reader.readLongOrNull(offsets[0]),
+    score: reader.readLongOrNull(offsets[1]),
   );
   return object;
 }
@@ -76,6 +82,8 @@ P _levelDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readBool(offset)) as P;
+    case 1:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -220,6 +228,16 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Level, Level, QAfterFilterCondition> isUnlockedEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isUnlocked',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<Level, Level, QAfterFilterCondition> scoreIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -294,6 +312,18 @@ extension LevelQueryObject on QueryBuilder<Level, Level, QFilterCondition> {}
 extension LevelQueryLinks on QueryBuilder<Level, Level, QFilterCondition> {}
 
 extension LevelQuerySortBy on QueryBuilder<Level, Level, QSortBy> {
+  QueryBuilder<Level, Level, QAfterSortBy> sortByIsUnlocked() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnlocked', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Level, Level, QAfterSortBy> sortByIsUnlockedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnlocked', Sort.desc);
+    });
+  }
+
   QueryBuilder<Level, Level, QAfterSortBy> sortByScore() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'score', Sort.asc);
@@ -320,6 +350,18 @@ extension LevelQuerySortThenBy on QueryBuilder<Level, Level, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Level, Level, QAfterSortBy> thenByIsUnlocked() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnlocked', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Level, Level, QAfterSortBy> thenByIsUnlockedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isUnlocked', Sort.desc);
+    });
+  }
+
   QueryBuilder<Level, Level, QAfterSortBy> thenByScore() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'score', Sort.asc);
@@ -334,6 +376,12 @@ extension LevelQuerySortThenBy on QueryBuilder<Level, Level, QSortThenBy> {
 }
 
 extension LevelQueryWhereDistinct on QueryBuilder<Level, Level, QDistinct> {
+  QueryBuilder<Level, Level, QDistinct> distinctByIsUnlocked() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isUnlocked');
+    });
+  }
+
   QueryBuilder<Level, Level, QDistinct> distinctByScore() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'score');
@@ -345,6 +393,12 @@ extension LevelQueryProperty on QueryBuilder<Level, Level, QQueryProperty> {
   QueryBuilder<Level, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Level, bool, QQueryOperations> isUnlockedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isUnlocked');
     });
   }
 

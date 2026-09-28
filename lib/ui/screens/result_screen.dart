@@ -1,96 +1,15 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:trivia/ui/widgets/rating_stars.dart';
+import 'package:isar/isar.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
+import 'package:trivia/models/category.dart';
+import 'package:trivia/models/level.dart';
+import 'package:trivia/provider/home.dart';
 import 'package:trivia/provider/settings.dart';
 import 'package:trivia/repository/repository.dart';
-import 'package:trivia/provider/home.dart';
-import 'package:isar/isar.dart';
-import 'package:trivia/models/level.dart';
-import 'package:trivia/models/category.dart';
-
-// Simple confetti burst - local, lightweight implementation so we don't
-// add a package dependency. It emits colored circles outward for ~1s.
-class ConfettiBurst extends StatefulWidget {
-  const ConfettiBurst({
-    super.key,
-    this.duration = const Duration(milliseconds: 900),
-  });
-
-  final Duration duration;
-
-  @override
-  State<ConfettiBurst> createState() => _ConfettiBurstState();
-}
-
-class _ConfettiBurstState extends State<ConfettiBurst>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  final List<Offset> _targets = [];
-  final List<Color> _colors = [
-    Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.orange,
-    Colors.purple,
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: widget.duration)
-      ..forward();
-    final rnd = DateTime.now().millisecondsSinceEpoch;
-    final random = Random(rnd);
-    for (var i = 0; i < 12; i++) {
-      final angle = random.nextDouble() * 2 * 3.1415;
-      final dist = 60 + random.nextDouble() * 80;
-      _targets.add(Offset(cos(angle) * dist, sin(angle) * dist));
-    }
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 220,
-      height: 220,
-      child: AnimatedBuilder(
-        animation: _ctrl,
-        builder: (context, child) {
-          final t = Curves.easeOut.transform(_ctrl.value);
-          return Stack(
-            children: List.generate(_targets.length, (i) {
-              final pos = _targets[i] * t;
-              final color = _colors[i % _colors.length];
-              return Positioned(
-                left: 110 + pos.dx,
-                top: 110 + pos.dy,
-                child: Opacity(
-                  opacity: 1.0 - t,
-                  child: Container(
-                    width: 10.0 * (1.0 - 0.4 * t),
-                    height: 10.0 * (1.0 - 0.4 * t),
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              );
-            }),
-          );
-        },
-      ),
-    );
-  }
-}
+import 'package:trivia/ui/widgets/confetti_burst.dart';
+import 'package:trivia/ui/widgets/rating_stars.dart';
+import 'package:trivia/utils/scoring.dart';
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({
@@ -200,20 +119,17 @@ class _ResultScreenState extends State<ResultScreen> {
                 .categoryIdEqualTo(widget.categoryId!)
                 .findAll();
         final cat = cats.isNotEmpty ? cats.first : null;
-        if (cat != null) {
-          if (widget.score > cat.highestScore) {
-            cat.highestScore = widget.score;
-            await isar.writeTxn(() async {
-              await isar.categorys.put(cat);
-            });
-            // update HomeProvider in-memory so Home UI updates immediately
-            try {
-              homeProvider.updateCategoryHighest(
-                cat.categoryId,
-                cat.highestScore,
-              );
-            } catch (_) {}
-          }
+        if (cat != null && cat.recordScore(widget.score)) {
+          await isar.writeTxn(() async {
+            await isar.categorys.put(cat);
+          });
+          // update HomeProvider in-memory so Home UI updates immediately
+          try {
+            homeProvider.updateCategoryHighest(
+              cat.categoryId,
+              cat.highestScore,
+            );
+          } catch (_) {}
         }
       }
       // done
@@ -238,6 +154,8 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final earnedStars = starsFor(widget.score, widget.total);
+    final isPerfect = widget.total > 0 && earnedStars >= maxStars;
 
     return Scaffold(
       body: Container(
@@ -280,15 +198,11 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // show confetti for excellent performance (perfect score)
-                  if (widget.total > 0 &&
-                      (widget.score == widget.total ||
-                          (((widget.score / widget.total) * 3).round() >= 3)))
+                  // celebrate an excellent performance (three stars)
+                  if (isPerfect) ...[
                     const ConfettiBurst(),
-                  if (widget.total > 0 &&
-                      (widget.score == widget.total ||
-                          (((widget.score / widget.total) * 3).round() >= 3)))
                     const SizedBox(height: 12),
+                  ],
                   // show unlock animation/banner when next level gets unlocked
                   TweenAnimationBuilder<double>(
                     tween: Tween(

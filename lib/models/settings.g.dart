@@ -17,13 +17,33 @@ const SettingsSchema = CollectionSchema(
   name: r'Settings',
   id: -8656046621518759136,
   properties: {
-    r'soundEnabled': PropertySchema(
+    r'categoryRoundSize': PropertySchema(
       id: 0,
+      name: r'categoryRoundSize',
+      type: IsarType.long,
+    ),
+    r'hapticsEnabled': PropertySchema(
+      id: 1,
+      name: r'hapticsEnabled',
+      type: IsarType.bool,
+    ),
+    r'questionBankVersion': PropertySchema(
+      id: 2,
+      name: r'questionBankVersion',
+      type: IsarType.long,
+    ),
+    r'secondsPerQuestion': PropertySchema(
+      id: 3,
+      name: r'secondsPerQuestion',
+      type: IsarType.long,
+    ),
+    r'soundEnabled': PropertySchema(
+      id: 4,
       name: r'soundEnabled',
       type: IsarType.bool,
     ),
     r'theme': PropertySchema(
-      id: 1,
+      id: 5,
       name: r'theme',
       type: IsarType.byte,
       enumMap: _SettingsthemeEnumValueMap,
@@ -58,8 +78,12 @@ void _settingsSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeBool(offsets[0], object.soundEnabled);
-  writer.writeByte(offsets[1], object.theme.index);
+  writer.writeLong(offsets[0], object.categoryRoundSize);
+  writer.writeBool(offsets[1], object.hapticsEnabled);
+  writer.writeLong(offsets[2], object.questionBankVersion);
+  writer.writeLong(offsets[3], object.secondsPerQuestion);
+  writer.writeBool(offsets[4], object.soundEnabled);
+  writer.writeByte(offsets[5], object.theme.index);
 }
 
 Settings _settingsDeserialize(
@@ -68,12 +92,18 @@ Settings _settingsDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Settings();
-  object.id = id;
-  object.soundEnabled = reader.readBool(offsets[0]);
-  object.theme =
-      _SettingsthemeValueEnumMap[reader.readByteOrNull(offsets[1])] ??
-          ThemeMode.system;
+  final object = Settings(
+    categoryRoundSize:
+        reader.readLongOrNull(offsets[0]) ?? defaultCategoryRoundSize,
+    hapticsEnabled: reader.readBoolOrNull(offsets[1]) ?? true,
+    id: id,
+    questionBankVersion: reader.readLongOrNull(offsets[2]) ?? 0,
+    secondsPerQuestion:
+        reader.readLongOrNull(offsets[3]) ?? defaultSecondsPerQuestion,
+    soundEnabled: reader.readBoolOrNull(offsets[4]) ?? true,
+    theme: _SettingsthemeValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+        ThemeMode.system,
+  );
   return object;
 }
 
@@ -85,8 +115,16 @@ P _settingsDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLongOrNull(offset) ?? defaultCategoryRoundSize) as P;
     case 1:
+      return (reader.readBoolOrNull(offset) ?? true) as P;
+    case 2:
+      return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 3:
+      return (reader.readLongOrNull(offset) ?? defaultSecondsPerQuestion) as P;
+    case 4:
+      return (reader.readBoolOrNull(offset) ?? true) as P;
+    case 5:
       return (_SettingsthemeValueEnumMap[reader.readByteOrNull(offset)] ??
           ThemeMode.system) as P;
     default:
@@ -194,6 +232,72 @@ extension SettingsQueryWhere on QueryBuilder<Settings, Settings, QWhereClause> {
 
 extension SettingsQueryFilter
     on QueryBuilder<Settings, Settings, QFilterCondition> {
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      categoryRoundSizeEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'categoryRoundSize',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      categoryRoundSizeGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'categoryRoundSize',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      categoryRoundSizeLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'categoryRoundSize',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      categoryRoundSizeBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'categoryRoundSize',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> hapticsEnabledEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hapticsEnabled',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -238,6 +342,118 @@ extension SettingsQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'id',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      questionBankVersionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'questionBankVersion',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      questionBankVersionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'questionBankVersion',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      questionBankVersionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'questionBankVersion',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      questionBankVersionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'questionBankVersion',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      secondsPerQuestionEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'secondsPerQuestion',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      secondsPerQuestionGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'secondsPerQuestion',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      secondsPerQuestionLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'secondsPerQuestion',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+      secondsPerQuestionBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'secondsPerQuestion',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -317,6 +533,56 @@ extension SettingsQueryLinks
     on QueryBuilder<Settings, Settings, QFilterCondition> {}
 
 extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCategoryRoundSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryRoundSize', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByCategoryRoundSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryRoundSize', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByHapticsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hapticsEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByHapticsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hapticsEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByQuestionBankVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'questionBankVersion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+      sortByQuestionBankVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'questionBankVersion', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortBySecondsPerQuestion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secondsPerQuestion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+      sortBySecondsPerQuestionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secondsPerQuestion', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortBySoundEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'soundEnabled', Sort.asc);
@@ -344,6 +610,30 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
 
 extension SettingsQuerySortThenBy
     on QueryBuilder<Settings, Settings, QSortThenBy> {
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCategoryRoundSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryRoundSize', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByCategoryRoundSizeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'categoryRoundSize', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByHapticsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hapticsEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByHapticsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hapticsEnabled', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -353,6 +643,32 @@ extension SettingsQuerySortThenBy
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByQuestionBankVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'questionBankVersion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+      thenByQuestionBankVersionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'questionBankVersion', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenBySecondsPerQuestion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secondsPerQuestion', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy>
+      thenBySecondsPerQuestionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'secondsPerQuestion', Sort.desc);
     });
   }
 
@@ -383,6 +699,30 @@ extension SettingsQuerySortThenBy
 
 extension SettingsQueryWhereDistinct
     on QueryBuilder<Settings, Settings, QDistinct> {
+  QueryBuilder<Settings, Settings, QDistinct> distinctByCategoryRoundSize() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'categoryRoundSize');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByHapticsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hapticsEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByQuestionBankVersion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'questionBankVersion');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctBySecondsPerQuestion() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'secondsPerQuestion');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctBySoundEnabled() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'soundEnabled');
@@ -401,6 +741,30 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Settings, int, QQueryOperations> categoryRoundSizeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'categoryRoundSize');
+    });
+  }
+
+  QueryBuilder<Settings, bool, QQueryOperations> hapticsEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hapticsEnabled');
+    });
+  }
+
+  QueryBuilder<Settings, int, QQueryOperations> questionBankVersionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'questionBankVersion');
+    });
+  }
+
+  QueryBuilder<Settings, int, QQueryOperations> secondsPerQuestionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'secondsPerQuestion');
     });
   }
 

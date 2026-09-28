@@ -61,6 +61,19 @@ const TriviaSchema = CollectionSchema(
           caseSensitive: true,
         )
       ],
+    ),
+    r'level': IndexSchema(
+      id: -730704511986726349,
+      name: r'level',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'level',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
     )
   },
   links: {},
@@ -158,6 +171,14 @@ extension TriviaQueryWhereSort on QueryBuilder<Trivia, Trivia, QWhere> {
   QueryBuilder<Trivia, Trivia, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhere> anyLevel() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'level'),
+      );
     });
   }
 }
@@ -270,6 +291,94 @@ extension TriviaQueryWhere on QueryBuilder<Trivia, Trivia, QWhereClause> {
               includeUpper: false,
             ));
       }
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> levelEqualTo(int level) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'level',
+        value: [level],
+      ));
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> levelNotEqualTo(int level) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'level',
+              lower: [],
+              upper: [level],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'level',
+              lower: [level],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'level',
+              lower: [level],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'level',
+              lower: [],
+              upper: [level],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> levelGreaterThan(
+    int level, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'level',
+        lower: [level],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> levelLessThan(
+    int level, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'level',
+        lower: [],
+        upper: [level],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> levelBetween(
+    int lowerLevel,
+    int upperLevel, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'level',
+        lower: [lowerLevel],
+        includeLower: includeLower,
+        upper: [upperLevel],
+        includeUpper: includeUpper,
+      ));
     });
   }
 }

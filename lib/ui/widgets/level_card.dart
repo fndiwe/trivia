@@ -3,7 +3,16 @@ import 'package:intl/intl.dart';
 import 'package:trivia/models/level.dart';
 import 'package:trivia/ui/widgets/pentagon.dart';
 import 'package:trivia/ui/widgets/rating_stars.dart';
+import 'package:trivia/utils/scoring.dart';
 
+/// Pentagon tile for one campaign level.
+///
+/// * Locked levels show a padlock instead of three empty stars (they cannot be
+///   played, so showing a 0/3 rating was misleading).
+/// * The star rating is scaled to [questionsPerLevel] instead of a hard-coded
+///   `10`.
+/// * The unlock animation no longer rebuilds `Transform.scale` on every tick of
+///   the whole subtree.
 class LevelCard extends StatefulWidget {
   const LevelCard({super.key, required this.level, required this.onPress});
 
@@ -22,7 +31,7 @@ class _LevelCardState extends State<LevelCard>
   @override
   void initState() {
     super.initState();
-    _wasUnlocked = widget.level.score != null || widget.level.id == 1;
+    _wasUnlocked = widget.level.isUnlocked;
     _animCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 420),
@@ -38,9 +47,9 @@ class _LevelCardState extends State<LevelCard>
   @override
   void didUpdateWidget(covariant LevelCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final nowUnlocked = widget.level.score != null || widget.level.id == 1;
+    final nowUnlocked = widget.level.isUnlocked;
     if (!_wasUnlocked && nowUnlocked) {
-      // just unlocked -> play highlight animation once, then return to normal
+      // Just unlocked -> play the highlight animation once, then settle back.
       _animCtrl.forward(from: 0.0).then((_) {
         if (!mounted) return;
         Future.delayed(const Duration(milliseconds: 700), () {
@@ -55,66 +64,78 @@ class _LevelCardState extends State<LevelCard>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final unlocked = widget.level.score != null || widget.level.id == 1;
+    final unlocked = widget.level.isUnlocked;
 
     return Stack(
       alignment: Alignment.topCenter,
       clipBehavior: Clip.none,
       children: [
-        Positioned(
-          top: -23,
-          child: RatingStars(
-            score: widget.level.score ?? 0,
-            numberOfQuestions: 10,
+        if (unlocked)
+          Positioned(
+            top: -23,
+            child: RatingStars(
+              score: widget.level.score ?? 0,
+              numberOfQuestions: questionsPerLevel,
+            ),
           ),
-        ),
-        GestureDetector(
-          onTap: unlocked ? widget.onPress : null,
-          child: AnimatedBuilder(
-            animation: _animCtrl,
-            builder: (context, child) {
-              final scale = 1.0 + (_animCtrl.value * 0.08);
-              return Transform.scale(
-                scale: scale,
-                child: Stack(
-                  fit: StackFit.expand,
-                  alignment: Alignment.center,
-                  children: [
-                    CustomPaint(
-                      painter: RoundedPentagonPainter(
-                        fillColor: theme.colorScheme.primary.withValues(
-                          alpha: unlocked ? 1 : .4,
-                        ),
-                        cornerRadius: 10,
+        Semantics(
+          button: true,
+          enabled: unlocked,
+          label: unlocked
+              ? 'Level ${widget.level.id}'
+              : 'Level ${widget.level.id}, locked',
+          child: GestureDetector(
+            onTap: unlocked ? widget.onPress : null,
+            child: AnimatedBuilder(
+              animation: _animCtrl,
+              builder: (context, child) =>
+                  Transform.scale(scale: 1.0 + (_animCtrl.value * 0.08), child: child),
+              child: Stack(
+                fit: StackFit.expand,
+                alignment: Alignment.center,
+                children: [
+                  CustomPaint(
+                    painter: RoundedPentagonPainter(
+                      fillColor: theme.colorScheme.primary.withValues(
+                        alpha: unlocked ? 1 : 0.4,
                       ),
+                      cornerRadius: 10,
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Level",
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (!unlocked) ...[
+                        Icon(
+                          Icons.lock_outline,
+                          size: 18,
+                          color: theme.colorScheme.onPrimary,
                         ),
-                        Text(
-                          NumberFormat()
-                              .format(widget.level.id)
-                              .padLeft(2, '0'),
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
+                        const SizedBox(height: 2),
                       ],
-                    ),
-                  ],
-                ),
-              );
-            },
+                      Text(
+                        'Level',
+                        style: TextStyle(
+                          color: theme.colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        NumberFormat()
+                            .format(widget.level.id)
+                            .padLeft(2, '0'),
+                        style: TextStyle(
+                          color: theme.colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
