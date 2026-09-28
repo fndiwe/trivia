@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:trivia/provider/home.dart';
+import 'package:trivia/l10n/l10n.dart';
 import 'package:trivia/provider/settings.dart';
 import 'package:trivia/repository/repository.dart';
 import 'package:trivia/utils/routes.dart';
@@ -63,8 +64,10 @@ class _TriviaAppState extends State<TriviaApp> {
     );
 
     return MaterialApp(
-      title: 'TriviaHQ',
+      onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
       themeMode: settings.theme,

@@ -15,6 +15,7 @@ import 'package:trivia/ui/widgets/level_card.dart';
 import 'package:trivia/ui/widgets/styled_top_tabs.dart';
 import 'package:trivia/utils/dates.dart';
 import 'package:trivia/utils/routes.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,14 +26,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  static const List<String> _tabs = ['Levels', 'Categories'];
-
   late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -80,13 +79,13 @@ class _HomeScreenState extends State<HomeScreen>
                   actions: [
                     if (streak > 0) StreakBadge(streak: streak),
                     IconButton(
-                      tooltip: 'Statistics',
+                      tooltip: context.l10n.statisticsTooltip,
                       icon: const Icon(Icons.insights_outlined),
                       onPressed:
                           () => Navigator.of(context).pushNamed(Routes.stats),
                     ),
                     IconButton(
-                      tooltip: 'Settings',
+                      tooltip: context.l10n.settingsTooltip,
                       icon: const Icon(Icons.settings),
                       onPressed:
                           () =>
@@ -103,7 +102,10 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       child: StyledTopTabs(
                         tabController: _tabController,
-                        tabs: _tabs,
+                        tabs: [
+                          context.l10n.tabLevels,
+                          context.l10n.tabCategories,
+                        ],
                       ),
                     ),
                   ),
@@ -197,9 +199,7 @@ class _LevelsTab extends StatelessWidget {
         ..showSnackBar(
           SnackBar(
             behavior: SnackBarBehavior.floating,
-            content: Text(
-              'Beat level ${level.id - 1} to unlock level ${level.id}.',
-            ),
+            content: Text(context.l10n.unlockHint(level.id - 1, level.id)),
           ),
         );
       return;

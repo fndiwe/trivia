@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// The row of round controls: the three lifelines plus pause.
 class GameControlsBar extends StatelessWidget {
@@ -43,15 +44,18 @@ class GameControlsBar extends StatelessWidget {
           icon: Icons.filter_2_outlined,
           tooltip:
               fiftyFiftyUsed
-                  ? '50:50 already used'
-                  : '50:50 - remove two wrong answers',
+                  ? context.l10n.lifeline5050Used
+                  : context.l10n.lifeline5050,
           used: fiftyFiftyUsed,
           onPressed: enabled && !fiftyFiftyUsed ? onFiftyFifty : null,
         ),
         const SizedBox(width: 8),
         _LifelineButton(
           icon: Icons.skip_next_outlined,
-          tooltip: skipUsed ? 'Skip already used' : 'Skip this question',
+          tooltip:
+              skipUsed
+                  ? context.l10n.lifelineSkipUsed
+                  : context.l10n.lifelineSkip,
           used: skipUsed,
           onPressed: enabled && !skipUsed ? onSkip : null,
         ),
@@ -59,7 +63,10 @@ class GameControlsBar extends StatelessWidget {
         if (timerEnabled)
           _LifelineButton(
             icon: Icons.more_time_outlined,
-            tooltip: extraTimeUsed ? 'Extra time already used' : '+10 seconds',
+            tooltip:
+                extraTimeUsed
+                    ? context.l10n.lifelineExtraTimeUsed
+                    : context.l10n.lifelineExtraTime(extraTimeSeconds),
             used: extraTimeUsed,
             onPressed: enabled && !extraTimeUsed ? onExtraTime : null,
           )
@@ -67,7 +74,7 @@ class GameControlsBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
-              'No timer',
+              context.l10n.noTimerLabel,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -75,7 +82,8 @@ class GameControlsBar extends StatelessWidget {
           ),
         const SizedBox(width: 24),
         IconButton.filledTonal(
-          tooltip: paused ? 'Resume' : 'Pause',
+          tooltip:
+              paused ? context.l10n.resumeTooltip : context.l10n.pauseTooltip,
           onPressed: onTogglePause,
           icon: Icon(paused ? Icons.play_arrow_rounded : Icons.pause_rounded),
         ),
@@ -143,10 +151,13 @@ class PausedOverlay extends StatelessWidget {
                 color: theme.colorScheme.primary,
               ),
               const SizedBox(height: 16),
-              Text('Paused', style: theme.textTheme.headlineSmall),
+              Text(
+                context.l10n.pausedTitle,
+                style: theme.textTheme.headlineSmall,
+              ),
               const SizedBox(height: 8),
               Text(
-                'Your progress in this round is kept.',
+                context.l10n.pausedSubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -155,10 +166,13 @@ class PausedOverlay extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onResume,
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: const Text('Resume'),
+                label: Text(context.l10n.resume),
               ),
               const SizedBox(height: 8),
-              TextButton(onPressed: onExit, child: const Text('Quit round')),
+              TextButton(
+                onPressed: onExit,
+                child: Text(context.l10n.quitRound),
+              ),
             ],
           ),
         ),

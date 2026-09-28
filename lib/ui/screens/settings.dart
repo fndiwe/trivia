@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:trivia/l10n/l10n.dart';
 import 'package:trivia/provider/home.dart';
 import 'package:trivia/provider/settings.dart';
 import 'package:trivia/repository/progress_repository.dart';
@@ -8,25 +9,6 @@ import 'package:trivia/utils/scoring.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
-
-  static final List<DropdownMenuState> _themes = [
-    DropdownMenuState(label: 'Light', value: ThemeMode.light.name),
-    DropdownMenuState(label: 'Dark', value: ThemeMode.dark.name),
-    DropdownMenuState(label: 'System', value: ThemeMode.system.name),
-  ];
-
-  static final List<DropdownMenuState> _roundSizes = [
-    for (final size in categoryRoundSizeOptions)
-      DropdownMenuState(label: '$size questions', value: '$size'),
-  ];
-
-  static final List<DropdownMenuState> _timers = [
-    for (final seconds in timerOptions)
-      DropdownMenuState(
-        label: seconds == 0 ? 'Off' : '$seconds seconds',
-        value: '$seconds',
-      ),
-  ];
 
   /// Picks the option matching [value], falling back to [fallback] when the
   /// stored value is not offered any more (e.g. after an app update).
@@ -39,22 +21,52 @@ class SettingsScreen extends StatelessWidget {
     orElse: () => fallback,
   );
 
+  static List<DropdownMenuState> _themeOptions(BuildContext context) => [
+    DropdownMenuState(
+      label: context.l10n.themeLight,
+      value: ThemeMode.light.name,
+    ),
+    DropdownMenuState(
+      label: context.l10n.themeDark,
+      value: ThemeMode.dark.name,
+    ),
+    DropdownMenuState(
+      label: context.l10n.themeSystem,
+      value: ThemeMode.system.name,
+    ),
+  ];
+
+  static List<DropdownMenuState> _roundSizeOptions(BuildContext context) => [
+    for (final size in categoryRoundSizeOptions)
+      DropdownMenuState(
+        label: context.l10n.questionsPerRoundValue(size),
+        value: '$size',
+      ),
+  ];
+
+  static List<DropdownMenuState> _timerOptions(BuildContext context) => [
+    for (final seconds in timerOptions)
+      DropdownMenuState(
+        label:
+            seconds == 0
+                ? context.l10n.timerOff
+                : context.l10n.timerSeconds(seconds),
+        value: '$seconds',
+      ),
+  ];
+
   Future<void> _confirmReset(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         final dialogTheme = Theme.of(dialogContext);
         return AlertDialog(
-          title: const Text('Reset progress?'),
-          content: const Text(
-            'This clears every level score, re-locks all levels except the '
-            'first one and clears every category best score. It cannot be '
-            'undone.',
-          ),
+          title: Text(context.l10n.resetProgressQuestion),
+          content: Text(context.l10n.resetProgressBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
@@ -62,7 +74,7 @@ class SettingsScreen extends StatelessWidget {
                 foregroundColor: dialogTheme.colorScheme.onErrorContainer,
               ),
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Reset'),
+              child: Text(context.l10n.reset),
             ),
           ],
         );
@@ -78,7 +90,7 @@ class SettingsScreen extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Progress reset.')));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.progressReset)));
   }
 
   @override
@@ -87,10 +99,14 @@ class SettingsScreen extends StatelessWidget {
     final settingsProvider = context.watch<SettingsProvider>();
     final settings = settingsProvider.settings;
 
+    final themes = _themeOptions(context);
+    final roundSizes = _roundSizeOptions(context);
+    final timers = _timerOptions(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Settings',
+          context.l10n.settingsTitle,
           style: theme.textTheme.titleLarge!.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -99,15 +115,15 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
-          const _SectionTitle('Appearance'),
+          _SectionTitle(context.l10n.sectionAppearance),
           TitledDropdown(
             theme: theme,
-            title: 'Theme',
-            list: _themes,
+            title: context.l10n.themeTitle,
+            list: themes,
             value: _selected(
-              _themes,
+              themes,
               settings.theme.name,
-              fallback: _themes.last,
+              fallback: themes.last,
             ),
             onSelected: (value) {
               if (value == null) return;
@@ -120,15 +136,15 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           const Divider(height: 1),
-          const _SectionTitle('Gameplay'),
+          _SectionTitle(context.l10n.sectionGameplay),
           TitledDropdown(
             theme: theme,
-            title: 'Questions per round',
-            list: _roundSizes,
+            title: context.l10n.questionsPerRound,
+            list: roundSizes,
             value: _selected(
-              _roundSizes,
+              roundSizes,
               '${settings.categoryRoundSize}',
-              fallback: _roundSizes.first,
+              fallback: roundSizes.first,
             ),
             onSelected: (value) {
               final size = int.tryParse(value ?? '');
@@ -137,12 +153,12 @@ class SettingsScreen extends StatelessWidget {
           ),
           TitledDropdown(
             theme: theme,
-            title: 'Seconds per question',
-            list: _timers,
+            title: context.l10n.secondsPerQuestion,
+            list: timers,
             value: _selected(
-              _timers,
+              timers,
               '${settings.secondsPerQuestion}',
-              fallback: _timers.first,
+              fallback: timers.first,
             ),
             onSelected: (value) {
               final seconds = int.tryParse(value ?? '');
@@ -155,29 +171,33 @@ class SettingsScreen extends StatelessWidget {
             value: settings.soundEnabled,
             onChanged: settingsProvider.setSoundEnabled,
             secondary: const Icon(Icons.volume_up_outlined),
-            title: Text('Sound effects', style: theme.textTheme.titleMedium),
-            subtitle: const Text('Play a sound for correct and wrong answers.'),
+            title: Text(
+              context.l10n.soundEffects,
+              style: theme.textTheme.titleMedium,
+            ),
+            subtitle: Text(context.l10n.soundEffectsSubtitle),
           ),
           SwitchListTile.adaptive(
             value: settings.hapticsEnabled,
             onChanged: settingsProvider.setHapticsEnabled,
             secondary: const Icon(Icons.vibration),
-            title: Text('Vibration', style: theme.textTheme.titleMedium),
-            subtitle: const Text('Light haptic feedback when you answer.'),
+            title: Text(
+              context.l10n.vibration,
+              style: theme.textTheme.titleMedium,
+            ),
+            subtitle: Text(context.l10n.vibrationSubtitle),
           ),
           const Divider(height: 1),
-          const _SectionTitle('Data'),
+          _SectionTitle(context.l10n.sectionData),
           ListTile(
             leading: Icon(Icons.restart_alt, color: theme.colorScheme.error),
             title: Text(
-              'Reset progress',
+              context.l10n.resetProgressTitle,
               style: theme.textTheme.titleMedium!.copyWith(
                 color: theme.colorScheme.error,
               ),
             ),
-            subtitle: const Text(
-              'Clear level scores, unlocks and category best scores.',
-            ),
+            subtitle: Text(context.l10n.resetProgressSubtitle),
             onTap: () => _confirmReset(context),
           ),
         ],

@@ -6,6 +6,7 @@ import 'package:trivia/provider/home.dart';
 import 'package:trivia/provider/settings.dart';
 import 'package:trivia/repository/progress_repository.dart';
 import 'package:trivia/utils/extract_trivia_data.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// First-launch bootstrap: imports the bundled question bank when needed, then
 /// loads the level and category grids before handing over to the home tabs.
@@ -22,6 +23,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   bool _started = false;
   String? _error;
+
+  /// 0..1 while the bundled question bank is being imported, `null` otherwise.
+  double? _importProgress;
+  int _importDone = 0;
+  int _importTotal = 0;
 
   @override
   void didChangeDependencies() {
@@ -44,7 +50,23 @@ class _SplashScreenState extends State<SplashScreen> {
       if (settingsProvider.settings.questionBankVersion !=
           currentQuestionBankVersion) {
         await ProgressRepository.clearQuestions();
-        await extractDataToDatabase();
+        if (mounted) {
+          setState(() {
+            _importProgress = 0;
+            _importDone = 0;
+            _importTotal = 0;
+          });
+        }
+        await importQuestionBank(
+          onProgress: (done, total) {
+            if (!mounted) return;
+            setState(() {
+              _importDone = done;
+              _importTotal = total;
+              _importProgress = total == 0 ? 1 : done / total;
+            });
+          },
+        );
         await settingsProvider.setQuestionBankVersion(
           currentQuestionBankVersion,
         );
@@ -61,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
       context.read<HomeProvider>().finishSplash();
     } catch (error) {
       if (!mounted) return;
-      setState(() => _error = 'Could not prepare the quiz data.');
+      setState(() => _error = context.l10n.couldNotPrepare);
     }
   }
 
@@ -76,15 +98,32 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'TriviaHQ',
+                context.l10n.appTitle,
                 style: theme.textTheme.headlineLarge!.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 28),
-              if (_error == null)
-                const SizedBox(width: 160, child: LinearProgressIndicator())
-              else ...[
+              if (_error == null) ...[
+                if (_importProgress != null) ...[
+                  Text(
+                    context.l10n.preparingBank,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$_importDone / $_importTotal',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                SizedBox(
+                  width: 200,
+                  child: LinearProgressIndicator(value: _importProgress),
+                ),
+              ] else ...[
                 Icon(
                   Icons.error_outline,
                   size: 42,
@@ -102,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     setState(() => _error = null);
                     unawaited(_bootstrap());
                   },
-                  child: const Text('Try again'),
+                  child: Text(context.l10n.tryAgain),
                 ),
               ],
             ],

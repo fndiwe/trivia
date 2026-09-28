@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// Entry point for the once-a-day challenge.
 class DailyChallengeCard extends StatelessWidget {
@@ -43,7 +44,7 @@ class DailyChallengeCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Daily challenge',
+                      context.l10n.dailyChallengeTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -51,8 +52,8 @@ class DailyChallengeCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       done
-                          ? 'Done for today - come back tomorrow'
-                          : 'Ten questions, the same for everyone today',
+                          ? context.l10n.dailyChallengeDone
+                          : context.l10n.dailyChallengeSubtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -114,14 +115,14 @@ class PracticeCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Practise your mistakes',
+                      context.l10n.practiceTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$count question${count == 1 ? '' : 's'} to work on',
+                      context.l10n.practiceSubtitle(count),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -148,7 +149,7 @@ class StreakBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Semantics(
-      label: '$streak day streak',
+      label: context.l10n.streakSemantics(streak),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trivia/utils/scoring.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// Three-star rating for a score out of [numberOfQuestions].
 class RatingStars extends StatelessWidget {
@@ -24,7 +25,7 @@ class RatingStars extends StatelessWidget {
     final earned = starsFor(score, numberOfQuestions);
 
     return Semantics(
-      label: '$earned out of $maxStars stars',
+      label: context.l10n.starRatingSemantics(earned, maxStars),
       child: Row(
         mainAxisAlignment:
             center ? MainAxisAlignment.center : MainAxisAlignment.start,

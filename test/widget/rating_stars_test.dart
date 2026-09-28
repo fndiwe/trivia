@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trivia/ui/widgets/rating_stars.dart';
 import 'package:trivia/utils/scoring.dart';
 
+import '../helpers.dart';
+
 void main() {
   Future<void> pumpStars(
     WidgetTester tester, {
@@ -10,11 +12,7 @@ void main() {
     required int total,
   }) {
     return tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: RatingStars(score: score, numberOfQuestions: total),
-        ),
-      ),
+      localizedApp(RatingStars(score: score, numberOfQuestions: total)),
     );
   }
 

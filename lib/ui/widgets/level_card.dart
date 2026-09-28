@@ -4,6 +4,7 @@ import 'package:trivia/models/level.dart';
 import 'package:trivia/ui/widgets/pentagon.dart';
 import 'package:trivia/ui/widgets/rating_stars.dart';
 import 'package:trivia/utils/scoring.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// Pentagon tile for one campaign level.
 ///
@@ -48,7 +49,9 @@ class _LevelCardState extends State<LevelCard>
   void didUpdateWidget(covariant LevelCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     final nowUnlocked = widget.level.isUnlocked;
-    if (!_wasUnlocked && nowUnlocked) {
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (!_wasUnlocked && nowUnlocked && !reduceMotion) {
       // Just unlocked -> play the highlight animation once, then settle back.
       _animCtrl.forward(from: 0.0).then((_) {
         if (!mounted) return;
@@ -83,8 +86,8 @@ class _LevelCardState extends State<LevelCard>
           enabled: unlocked,
           label:
               unlocked
-                  ? 'Level ${widget.level.id}'
-                  : 'Level ${widget.level.id}, locked',
+                  ? context.l10n.levelSemantics(widget.level.id)
+                  : context.l10n.levelLockedSemantics(widget.level.id),
           child: GestureDetector(
             onTap: unlocked ? widget.onPress : null,
             child: AnimatedBuilder(
@@ -118,7 +121,7 @@ class _LevelCardState extends State<LevelCard>
                         const SizedBox(height: 2),
                       ],
                       Text(
-                        'Level',
+                        context.l10n.levelWord,
                         style: TextStyle(
                           color: theme.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,

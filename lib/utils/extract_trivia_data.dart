@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:isar/isar.dart';
 import 'package:trivia/models/category.dart';
@@ -16,59 +18,80 @@ import 'package:trivia/utils/scoring.dart';
 /// Re-importing rebuilds the level ladder, so level progress restarts.
 const int currentQuestionBankVersion = 1;
 
-/// Loads the bundled question bank into Isar.
-///
-/// Improvements over the original import:
-///
-/// * malformed records are skipped instead of aborting the whole import,
-/// * questions are written with `putAll` inside a single transaction,
-/// * level 1 is created already unlocked (score `0`) so it matches
-///   [Level.isUnlocked] instead of relying on a special case,
-/// * the wasted empty level at the end of the ladder is gone.
-Future<void> extractDataToDatabase() async {
-  final isar = Repository.isar;
+/// How many questions are written per transaction while importing.
+const int _importBatchSize = 500;
 
-  final String jsonString = await rootBundle.loadString('assets/trivia.json');
-  final dynamic decoded = jsonDecode(jsonString);
+/// Decodes and validates the bundled question bank.
+///
+/// Top-level so it can be handed to [compute] and run on a background isolate:
+/// parsing a 6 MB JSON array on the UI isolate is what made the first launch
+/// feel stuck behind the splash screen.
+///
+/// Malformed records are skipped rather than aborting the whole import, and the
+/// result is shuffled once so levels are not "all animals, then all history".
+List<Trivia> parseQuestionBank(String json) {
+  final dynamic decoded = jsonDecode(json);
   if (decoded is! List) {
     throw const FormatException(
       'assets/trivia.json must contain a list of question objects.',
     );
   }
 
-  final parsedQuestions = <Trivia>[];
+  final questions = <Trivia>[];
   for (final entry in decoded) {
-    if (entry is! Map<String, dynamic>) continue;
-    final trivia = Trivia.tryFromMap(entry);
-    if (trivia != null) parsedQuestions.add(trivia);
+    if (entry is Map<String, dynamic>) {
+      final trivia = Trivia.tryFromMap(entry);
+      if (trivia != null) questions.add(trivia);
+    }
   }
 
-  if (parsedQuestions.isEmpty) {
+  if (questions.isEmpty) {
     throw const FormatException(
       'assets/trivia.json did not contain any usable questions.',
     );
   }
 
-  // Shuffle once up front so levels are not "all animals, then all geography".
-  parsedQuestions.shuffle();
+  questions.shuffle(Random(questions.length));
+  return questions;
+}
 
-  await isar.writeTxn(() async {
-    // Assign each question to a level, then write them in one batch.
-    final questions = <Trivia>[
-      for (var index = 0; index < parsedQuestions.length; index++)
-        parsedQuestions[index].withLevel((index ~/ questionsPerLevel) + 1),
+/// Progress of [importQuestionBank]: `done` of `total` questions written.
+typedef ImportProgress = void Function(int done, int total);
+
+/// Loads the bundled question bank into Isar and returns how many questions
+/// were imported.
+///
+/// Parsing happens on a background isolate; writing happens in batches so the
+/// splash screen can show real progress instead of an indeterminate spinner.
+Future<int> importQuestionBank({ImportProgress? onProgress}) async {
+  final isar = Repository.isar;
+
+  final String jsonString = await rootBundle.loadString('assets/trivia.json');
+  final questions = await compute(parseQuestionBank, jsonString);
+  final total = questions.length;
+
+  // Questions first, in batches.
+  for (var start = 0; start < total; start += _importBatchSize) {
+    final end = (start + _importBatchSize).clamp(0, total);
+    final batch = <Trivia>[
+      for (var index = start; index < end; index++)
+        questions[index].withLevel((index ~/ questionsPerLevel) + 1),
     ];
-    await isar.trivias.putAll(questions);
+    await isar.writeTxn(() async {
+      await isar.trivias.putAll(batch);
+    });
+    onProgress?.call(end, total);
+  }
 
-    final levels = <Level>[];
-    final levelCount = (parsedQuestions.length / questionsPerLevel).ceil();
-    for (var id = 1; id <= levelCount; id++) {
-      levels.add(Level(id: id, score: id == 1 ? 0 : null));
-    }
-    await isar.levels.putAll(levels);
+  // Level ladder: level 1 is unlocked from the start.
+  final levelCount = (total / questionsPerLevel).ceil();
+  await isar.writeTxn(() async {
+    await isar.levels.putAll([
+      for (var id = 1; id <= levelCount; id++)
+        Level(id: id, score: id == 1 ? 0 : null),
+    ]);
 
-    final categories = Categories.categories;
-    for (final category in categories) {
+    for (final category in Categories.categories) {
       final numberOfQuestions =
           await isar.trivias
               .filter()
@@ -84,4 +107,6 @@ Future<void> extractDataToDatabase() async {
       );
     }
   });
+
+  return total;
 }

@@ -18,6 +18,7 @@ import 'package:trivia/ui/widgets/game_controls_bar.dart';
 import 'package:trivia/ui/widgets/game_header.dart';
 import 'package:trivia/utils/scoring.dart';
 import 'package:trivia/utils/sound_player.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// How long the revealed answer stays on screen before the next question.
 const Duration _revealDelay = Duration(milliseconds: 900);
@@ -360,10 +361,8 @@ class _GamePlayScreenState extends State<GamePlayScreen>
         builder: (dialogContext) {
           final dialogTheme = Theme.of(dialogContext);
           return AlertDialog(
-            title: const Text('Exit game?'),
-            content: const Text(
-              'Do you want to stop the game? Your current progress will be lost.',
-            ),
+            title: Text(context.l10n.exitGameTitle),
+            content: Text(context.l10n.exitGameBody),
             actions: [
               FilledButton(
                 style: ButtonStyle(
@@ -380,7 +379,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
                   ),
                 ),
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Exit'),
+                child: Text(context.l10n.exit),
               ),
               FilledButton(
                 style: ButtonStyle(
@@ -391,7 +390,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
                   ),
                 ),
                 onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text('Continue game'),
+                child: Text(context.l10n.continueGame),
               ),
             ],
           );
@@ -446,7 +445,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
       return _CenteredMessage(
         icon: Icons.error_outline,
         title: _error!,
-        actionLabel: 'Try again',
+        actionLabel: context.l10n.tryAgain,
         onAction: _loadQuestions,
       );
     }
@@ -454,12 +453,10 @@ class _GamePlayScreenState extends State<GamePlayScreen>
       return _CenteredMessage(
         icon: Icons.inbox_outlined,
         title: switch (widget.request.mode) {
-          RoundMode.practice =>
-            'Nothing to practise yet. Play a few rounds and '
-                'the questions you get wrong will show up here.',
-          _ => 'No questions available for this quiz yet.',
+          RoundMode.practice => context.l10n.nothingToPractise,
+          _ => context.l10n.noQuestions,
         },
-        actionLabel: 'Back to home',
+        actionLabel: context.l10n.backToHome,
         onAction: () => Navigator.of(context).pop(),
       );
     }
@@ -476,8 +473,8 @@ class _GamePlayScreenState extends State<GamePlayScreen>
           category: widget.request.category,
           level: widget.request.level,
           modeLabel: switch (widget.request.mode) {
-            RoundMode.daily => 'Daily challenge',
-            RoundMode.practice => 'Practice',
+            RoundMode.daily => context.l10n.modeDaily,
+            RoundMode.practice => context.l10n.modePractice,
             _ => null,
           },
           onExit: () => unawaited(_showExitDialog()),
@@ -565,7 +562,7 @@ class _CountdownBar extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            'No time limit',
+            context.l10n.noTimeLimit,
             style: theme.textTheme.labelLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -581,8 +578,8 @@ class _CountdownBar extends StatelessWidget {
         secondsTotal <= 0 ? 0.0 : (secondsLeft / secondsTotal).clamp(0.0, 1.0);
 
     return Semantics(
-      label: 'Time remaining',
-      value: '$secondsLeft seconds',
+      label: context.l10n.timeRemaining,
+      value: context.l10n.secondsValue(secondsLeft),
       child: Column(
         children: [
           Row(

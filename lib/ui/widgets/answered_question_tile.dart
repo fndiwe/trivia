@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trivia/models/answered_question.dart';
 import 'package:trivia/utils/theme.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// One row of the post-round answer review.
 ///
@@ -26,19 +27,19 @@ class AnsweredQuestionTile extends StatelessWidget {
       AnsweredQuestion(isCorrect: true) => (
         Icons.check_circle_rounded,
         AppColors.correctFor(theme),
-        'Correct',
+        context.l10n.verdictCorrect,
       ),
       AnsweredQuestion(timedOut: true) => (
         Icons.timer_off_outlined,
         scheme.error,
-        'Out of time',
+        context.l10n.verdictOutOfTime,
       ),
       AnsweredQuestion(wasSkipped: true) => (
         Icons.skip_next_outlined,
         scheme.onSurfaceVariant,
-        'Skipped',
+        context.l10n.verdictSkipped,
       ),
-      _ => (Icons.cancel_rounded, scheme.error, 'Wrong'),
+      _ => (Icons.cancel_rounded, scheme.error, context.l10n.verdictWrong),
     };
 
     return Card(
@@ -74,14 +75,14 @@ class AnsweredQuestionTile extends StatelessWidget {
             if (answer.wasAnswered && !answer.isCorrect) ...[
               const SizedBox(height: 6),
               _Line(
-                label: 'You answered',
+                label: context.l10n.youAnswered,
                 value: answer.selectedChoice!,
                 color: scheme.error,
               ),
             ],
             const SizedBox(height: 6),
             _Line(
-              label: 'Answer',
+              label: context.l10n.answerLabel,
               value: correct,
               color: AppColors.correctFor(theme),
             ),

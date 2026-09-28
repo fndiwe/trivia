@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 import 'package:trivia/models/category.dart';
 import 'package:trivia/ui/widgets/rating_stars.dart';
 import 'package:trivia/utils/scoring.dart';
+import 'package:trivia/l10n/l10n.dart';
+import 'package:trivia/l10n/category_names.dart';
 
 class CategoryCard extends StatelessWidget {
   const CategoryCard({
@@ -29,7 +30,7 @@ class CategoryCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '${category.name}, ${category.numberOfQuestions} questions',
+      label: context.l10n.categoryLabel(category.categoryId),
       child: GestureDetector(
         onTap: onPress,
         child: Stack(
@@ -49,7 +50,7 @@ class CategoryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      category.name,
+                      context.l10n.categoryLabel(category.categoryId),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -58,14 +59,17 @@ class CategoryCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${NumberFormat().format(category.numberOfQuestions)} questions',
+                      context.l10n.questionsCount(category.numberOfQuestions),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
-                      'Best: ${category.highestScore}/$questionsPerRound',
+                      context.l10n.bestScore(
+                        category.highestScore,
+                        questionsPerRound,
+                      ),
                       style: TextStyle(
                         fontSize: 12,
                         color: theme.colorScheme.onSurfaceVariant,

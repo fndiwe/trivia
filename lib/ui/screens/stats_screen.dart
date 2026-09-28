@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:trivia/models/round_result.dart';
 import 'package:trivia/repository/stats_repository.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// Everything the app has recorded about the player's play.
 class StatsScreen extends StatefulWidget {
@@ -43,7 +44,7 @@ class _StatsScreenState extends State<StatsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Statistics',
+          context.l10n.statsTitle,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -63,7 +64,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       _StatGrid(stats: stats),
                       const SizedBox(height: 24),
                       Text(
-                        'Recent rounds',
+                        context.l10n.recentRounds,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -94,7 +95,7 @@ class _StatGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.sports_score_outlined,
-                label: 'Accuracy',
+                label: context.l10n.statAccuracy,
                 value: '$percent%',
               ),
             ),
@@ -102,7 +103,7 @@ class _StatGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.play_circle_outline,
-                label: 'Rounds',
+                label: context.l10n.statRounds,
                 value: '${stats.roundsPlayed}',
               ),
             ),
@@ -114,7 +115,7 @@ class _StatGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.emoji_events_outlined,
-                label: 'Best round',
+                label: context.l10n.statBestRound,
                 value: '${stats.bestRound}',
               ),
             ),
@@ -122,7 +123,7 @@ class _StatGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.help_outline,
-                label: 'Questions seen',
+                label: context.l10n.statQuestionsSeen,
                 value: '${stats.questionsSeen}',
               ),
             ),
@@ -134,7 +135,7 @@ class _StatGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.workspace_premium_outlined,
-                label: 'Mastered',
+                label: context.l10n.statMastered,
                 value: '${stats.masteredQuestions}',
               ),
             ),
@@ -142,7 +143,7 @@ class _StatGrid extends StatelessWidget {
             Expanded(
               child: _StatCard(
                 icon: Icons.school_outlined,
-                label: 'To practise',
+                label: context.l10n.statToPractise,
                 value: '${stats.questionsToPractise}',
               ),
             ),
@@ -224,7 +225,9 @@ class _RoundTile extends StatelessWidget {
         color: theme.colorScheme.primary,
       ),
       title: Text(
-        round.levelId != null ? 'Level ${round.levelId}' : round.mode.name,
+        round.levelId != null
+            ? context.l10n.levelLabel(round.levelId!)
+            : _modeLabel(context, round.mode),
       ),
       subtitle: Text(date),
       trailing: Text(
@@ -253,11 +256,10 @@ class _EmptyStats extends StatelessWidget {
             color: theme.colorScheme.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
-          Text('No rounds played yet', style: theme.textTheme.titleMedium),
+          Text(context.l10n.noRoundsYet, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(
-            'Finish a level or a category round and your accuracy, best score '
-            'and hardest questions will show up here.',
+            context.l10n.noRoundsHint,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
@@ -268,3 +270,11 @@ class _EmptyStats extends StatelessWidget {
     );
   }
 }
+
+/// Localised label for a [RoundMode].
+String _modeLabel(BuildContext context, RoundMode mode) => switch (mode) {
+  RoundMode.level => context.l10n.modeLevel,
+  RoundMode.category => context.l10n.modeCategory,
+  RoundMode.daily => context.l10n.modeDaily,
+  RoundMode.practice => context.l10n.modePractice,
+};

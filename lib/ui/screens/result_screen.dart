@@ -14,6 +14,7 @@ import 'package:trivia/ui/widgets/confetti_burst.dart';
 import 'package:trivia/ui/widgets/rating_stars.dart';
 import 'package:trivia/utils/scoring.dart';
 import 'package:trivia/utils/sound_player.dart';
+import 'package:trivia/l10n/l10n.dart';
 
 /// End of a round: what was scored, what changed, and a review of every
 /// question so the player can learn from it.
@@ -103,7 +104,12 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final stars = starsFor(_outcome.score, _outcome.total);
-    final perfect = _outcome.total > 0 && stars >= maxStars;
+    // Respect the OS "reduce motion" setting: no confetti animation for those
+    // who asked for fewer animations.
+    final showConfetti =
+        _outcome.total > 0 &&
+        stars >= maxStars &&
+        !MediaQuery.disableAnimationsOf(context);
 
     return Scaffold(
       body: Container(
@@ -125,7 +131,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 12, left: 12),
                   child: IconButton.filled(
-                    tooltip: 'Back to home',
+                    tooltip: context.l10n.backToHome,
                     style: IconButton.styleFrom(
                       backgroundColor: theme.colorScheme.surface,
                       foregroundColor: theme.colorScheme.onSurface,
@@ -142,7 +148,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   children: [
                     Center(
                       child: Text(
-                        'Results',
+                        context.l10n.resultsTitle,
                         style: theme.textTheme.headlineMedium?.copyWith(
                           color: theme.colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,
@@ -150,7 +156,7 @@ class _ResultScreenState extends State<ResultScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (perfect) ...[
+                    if (showConfetti) ...[
                       const Center(child: ConfettiBurst()),
                       const SizedBox(height: 8),
                     ],
@@ -158,7 +164,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     if (_saveFailed)
                       _Badge(
                         icon: Icons.cloud_off_outlined,
-                        label: 'Could not save this round',
+                        label: context.l10n.couldNotSave,
                       ),
                     Center(
                       child: _ScoreRing(
@@ -212,15 +218,15 @@ class _ResultScreenState extends State<ResultScreen> {
       badges.add(
         _Badge(
           icon: Icons.celebration_rounded,
-          label: 'Level ${summary.unlockedLevelId} unlocked!',
+          label: context.l10n.levelUnlocked(summary.unlockedLevelId!),
         ),
       );
     }
     if (summary.newCategoryBest) {
       badges.add(
-        const _Badge(
+        _Badge(
           icon: Icons.emoji_events_outlined,
-          label: 'New best score!',
+          label: context.l10n.newBestScore,
         ),
       );
     }
@@ -230,8 +236,8 @@ class _ResultScreenState extends State<ResultScreen> {
           icon: Icons.local_fire_department_outlined,
           label:
               summary.streakIncreased
-                  ? '${summary.streak} day streak!'
-                  : '${summary.streak} day streak',
+                  ? context.l10n.streakBadgeNew(summary.streak)
+                  : context.l10n.streakBadge(summary.streak),
         ),
       );
     }
@@ -359,12 +365,12 @@ class _ActionButtons extends StatelessWidget {
             FilledButton.icon(
               onPressed: onPlayAgain,
               icon: const Icon(Icons.replay_rounded),
-              label: const Text('Play again'),
+              label: Text(context.l10n.playAgain),
             ),
             FilledButton.tonalIcon(
               onPressed: onHome,
               icon: const Icon(Icons.home_outlined),
-              label: const Text('Home'),
+              label: Text(context.l10n.home),
             ),
           ],
         ),
@@ -373,7 +379,7 @@ class _ActionButtons extends StatelessWidget {
           TextButton.icon(
             onPressed: onPractise,
             icon: const Icon(Icons.school_outlined),
-            label: Text('Practise these mistakes ($practiceCount)'),
+            label: Text(context.l10n.practiseTheseMistakes(practiceCount)),
             style: TextButton.styleFrom(
               foregroundColor: theme.colorScheme.onPrimary,
             ),
@@ -402,7 +408,7 @@ class _ReviewHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            'Review',
+            context.l10n.review,
             style: theme.textTheme.titleLarge?.copyWith(
               color: theme.colorScheme.onPrimary,
               fontWeight: FontWeight.bold,
@@ -410,7 +416,9 @@ class _ReviewHeader extends StatelessWidget {
           ),
         ),
         Text(
-          mistakes == 0 ? 'All $total correct' : '$correct/$total correct',
+          mistakes == 0
+              ? context.l10n.allCorrect(total)
+              : context.l10n.correctOfTotal(correct, total),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onPrimary,
           ),
