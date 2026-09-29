@@ -8,8 +8,10 @@ never needs a network connection, an account, or a backend.
 
 ## Features
 
-- **Campaign** – a ladder of levels drawn from a shuffled question pool. The
-  next level unlocks as soon as you finish the current one.
+- **Campaign** – a ladder of levels ordered by difficulty (estimated at import
+  from the question content, then refined from how the player actually
+  answers), so level 1 is the easiest. The next level unlocks as soon as you
+  finish the current one.
 - **Categories** – free play across 20 topics (Animals, History, Movies,
   Science & Technology, Video games, …).
 - **Daily challenge** – ten questions, the same for everyone on a given day,
@@ -20,9 +22,12 @@ never needs a network connection, an account, or a backend.
   skip, +10 seconds), pause, answer review after every round, sound effects and
   haptic feedback.
 - **Statistics** – accuracy, rounds played, best round, mastered and
-  to-practise questions, recent history.
+  to-practise questions, recent history, per-category accuracy and the hardest
+  questions.
 - **Personalisation** – light/dark/system theme, questions per category round,
   seconds per question (or no timer at all), sound, vibration, reset progress.
+- **Shareable results** – the results screen can hand a rendered result card
+  to the system share sheet as an image.
 - **Localised** – English and Spanish UI (`lib/l10n`).
 - **Offline** – no accounts, no network calls, no analytics.
 
@@ -51,7 +56,8 @@ lib/
   provider/              ChangeNotifier state (HomeProvider, SettingsProvider)
   ui/screens, ui/widgets presentation
   utils/                 pure helpers: scoring, quiz_selection, dates, theme,
-                         routes, sound_player, extract_trivia_data
+                         difficulty, routes, sound_player,
+                         extract_trivia_data
   l10n/                  ARB catalogues + generated AppLocalizations
 ```
 
@@ -109,8 +115,8 @@ launch detects the mismatch, re-imports the bank and rebuilds the level ladder.
 
 ## Roadmap
 
-[SUGGESTIONS.md](SUGGESTIONS.md) lists what has been implemented and what is
-still on the table (difficulty-aware campaign, online modes, and more).
+[SUGGESTIONS.md](SUGGESTIONS.md) lists what is still on the table (app icons,
+release configuration, more languages, difficulty-weight tuning).
 
 ## License
 
