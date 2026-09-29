@@ -7,7 +7,9 @@ flutter pub get
 flutter run
 ```
 
-Requires a Flutter SDK with Dart `^3.7.2` (Flutter 3.29+).
+Requires a Flutter SDK with Dart `^3.7.2` (Flutter 3.29+), and an Android
+device or emulator for `flutter run` — the project has no other platform
+target.
 
 ## The Isar schemas
 
@@ -39,8 +41,10 @@ dart format $(git ls-files 'lib' 'test' | grep '\.dart$' | grep -v '\.g\.dart$' 
 
 ### Integration tests
 
-`test/integration/` runs against a real Isar instance. It needs the native
-library at `build/isar/libisar.so` (the tests skip when it is absent):
+`test/integration/` runs against a real Isar instance on the *host* that runs
+the test suite (the tests never run on the Android device). It needs a native
+Isar library at `build/isar/libisar.so`, which is the Linux build — the same
+one CI downloads:
 
 ```bash
 mkdir -p build/isar
@@ -48,6 +52,13 @@ curl -sL -o build/isar/libisar.so \
   https://github.com/isar/isar/releases/download/3.1.0%2B1/libisar_linux_x64.so
 flutter test test/integration
 ```
+
+On other hosts the equivalent file is `libisar.dll` (Windows) or
+`libisar.dylib` (macOS). `test/integration/isar_env.dart` only looks for
+`libisar.so`, so on those hosts there is no database to run against:
+`skipUnlessIsar()` marks the test skipped but the body still runs, so the
+integration tests fail with `Bad state: Isar has not been opened yet`. Run them
+on Linux, or drop a locally built Isar library in at that path.
 
 ## Style
 

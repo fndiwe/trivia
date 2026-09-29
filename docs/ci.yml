@@ -35,6 +35,8 @@ jobs:
           git diff --exit-code -- 'lib/l10n/generated'
 
       - name: Fetch the Isar native library for the integration tests
+        # `flutter test` runs on this Ubuntu runner, so it wants the Linux
+        # build of the library — not the Android one shipped in the APK.
         run: |
           mkdir -p build/isar
           curl -sL -o build/isar/libisar.so \

@@ -38,15 +38,14 @@ workflow.
 **Sharing**
 - **Shareable result card** – the results screen renders a 360x560 card (score
   ring, stars, streak, date) and hands it to the system share sheet as a PNG
-  via `share_plus`, with a text-only fallback. The button is hidden on Linux
-  and Windows, where `share_plus` has no implementation.
+  via `share_plus`, with a text-only fallback.
 
 **Foundations**
 - Localisation (English and Spanish), accessibility (font-scale-aware grids,
   "reduce motion", clean `Semantics`), question-bank import on a background
-  isolate with a determinate progress bar, preloaded audio clips, graceful
-  web guard, MIT license, CONTRIBUTING, CI pipeline (`docs/ci.yml`), and 123
-  unit / widget / integration tests.
+  isolate with a determinate progress bar, preloaded audio clips, MIT license,
+  CONTRIBUTING, CI pipeline (`docs/ci.yml`), and 123 unit / widget /
+  integration tests.
 
 ---
 
@@ -60,8 +59,8 @@ missing asset makes those generators fail.
 
 ### 2. Release configuration — **S/M**
 
-Android signing config, `--split-per-abi`, ProGuard/R8 rules for Isar,
-`share_plus` and `just_audio`, and `CFBundleDisplayName` on iOS.
+Android signing config, `--split-per-abi`, and ProGuard/R8 rules for Isar,
+`share_plus` and `just_audio`.
 
 ### 3. More languages — **S each**
 

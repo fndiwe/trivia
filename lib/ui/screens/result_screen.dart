@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -93,17 +91,6 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
-  /// Whether the platform can share at all (share_plus has no Linux or
-  /// Windows implementation, so the button is hidden there rather than
-  /// guaranteed to fail).
-  bool get _canShare =>
-      kIsWeb ||
-      const {
-        TargetPlatform.android,
-        TargetPlatform.iOS,
-        TargetPlatform.macOS,
-      }.contains(defaultTargetPlatform);
-
   String _shareText() {
     final modeLabel = switch (_outcome.request.mode) {
       RoundMode.level => context.l10n.levelLabel(
@@ -125,7 +112,7 @@ class _ResultScreenState extends State<ResultScreen> {
   /// Captures the hidden share card and hands it to the system share sheet.
   ///
   /// Falls back to sharing the text alone when the image cannot be captured,
-  /// and to a snackbar when the platform cannot share anything.
+  /// and to a snackbar when the share sheet itself fails.
   Future<void> _share() async {
     try {
       final bytes = await captureShareCard(_cardKey);
@@ -255,7 +242,7 @@ class _ResultScreenState extends State<ResultScreen> {
                         _ActionButtons(
                           onPlayAgain: _playAgain,
                           onHome: () => Navigator.of(context).pop(),
-                          onShare: _canShare ? _share : null,
+                          onShare: _share,
                           onPractise:
                               _summary != null &&
                                       _summary!.practiceQuestionCount > 0

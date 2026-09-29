@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -42,12 +40,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _handleBack(bool didPop, Object? result) {
     if (didPop) return;
-    // Hand the back gesture to the OS on mobile so the app can be closed;
-    // on desktop/web the root route simply stays put.
-    if (defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS) {
-      SystemNavigator.pop();
-    }
+    // Hand the back gesture to the OS so the app can be closed; the root route
+    // has nowhere left to pop to.
+    SystemNavigator.pop();
   }
 
   @override

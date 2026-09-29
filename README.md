@@ -6,6 +6,9 @@ TriviaHQ ships with a ~6 MB question bank (`assets/trivia.json`, 20 categories)
 that is imported into a local Isar database on first launch. After that the app
 never needs a network connection, an account, or a backend.
 
+TriviaHQ is Android-only: `android/` is the single platform folder in the
+repository, and there is no iOS, macOS, Windows, Linux or web target.
+
 ## Features
 
 - **Campaign** – a ladder of levels ordered by difficulty (estimated at import
@@ -46,7 +49,7 @@ never needs a network connection, an account, or a backend.
 
 ```
 lib/
-  main.dart              app entry point, providers, theming, web guard
+  main.dart              app entry point, providers, theming
   models/                Isar collections + plain data models
                          (Trivia, Level, Category, Settings, QuestionStat,
                          RoundResult) plus generated *.g.dart schemas
@@ -77,7 +80,8 @@ flutter pub get
 flutter run
 ```
 
-Requires a Flutter SDK that provides Dart `^3.7.2` (Flutter 3.29 or newer).
+Requires a Flutter SDK that provides Dart `^3.7.2` (Flutter 3.29 or newer) and,
+for `flutter run`, a connected Android device or a running emulator.
 
 ### Regenerating code
 
