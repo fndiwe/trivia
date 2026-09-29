@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:trivia/utils/scoring.dart';
+import 'package:trivia/l10n/l10n.dart';
 
+/// Three-star rating for a score out of [numberOfQuestions].
 class RatingStars extends StatelessWidget {
   const RatingStars({
     super.key,
@@ -17,30 +20,27 @@ class RatingStars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Guarded inside starsFor: a round with no questions used to divide by zero
+    // here and throw while the question list was still loading.
+    final earned = starsFor(score, numberOfQuestions);
 
-    final numberOfStars = ((score / numberOfQuestions) * 3).round();
-
-    final List<Widget> coloredStars = List.generate(
-      numberOfStars,
-      (value) => Icon(
-        Icons.star_rate_rounded,
-        color: theme.colorScheme.primary,
-        size: size,
+    return Semantics(
+      label: context.l10n.starRatingSemantics(earned, maxStars),
+      child: Row(
+        mainAxisAlignment:
+            center ? MainAxisAlignment.center : MainAxisAlignment.start,
+        children: [
+          for (var i = 0; i < maxStars; i++)
+            Icon(
+              Icons.star_rate_rounded,
+              color:
+                  i < earned
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.primaryContainer,
+              size: size,
+            ),
+        ],
       ),
-    );
-    final List<Widget> nonColoredStars = List.generate(
-      3 - numberOfStars,
-      (value) => Icon(
-        Icons.star_rate_rounded,
-        color: theme.colorScheme.primaryContainer,
-        size: size,
-      ),
-    );
-
-    return Row(
-      mainAxisAlignment:
-          center ? MainAxisAlignment.center : MainAxisAlignment.start,
-      children: [...coloredStars, ...nonColoredStars],
     );
   }
 }

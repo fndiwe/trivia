@@ -1,93 +1,140 @@
 import 'package:flutter/material.dart';
+import 'package:trivia/utils/theme.dart';
+
+/// Visual state of an answer button.
+///
+/// The gameplay screen used to infer this from raw colours (comparing the
+/// background colour against `theme.colorScheme.onSurface` to guess whether a
+/// button was "still default"), which was brittle: it broke as soon as the
+/// theme changed. The state is now explicit.
+enum ChoiceStatus {
+  /// Not answered yet.
+  idle,
+
+  /// The correct answer, revealed once the player answers or time runs out.
+  correct,
+
+  /// The answer the player picked, when it was wrong.
+  wrong,
+
+  /// Neither picked nor correct, dimmed after the answer is revealed.
+  muted,
+
+  /// Removed from play by the 50:50 lifeline. Struck out and not tappable.
+  eliminated,
+}
 
 class GameChoiceButton extends StatelessWidget {
   const GameChoiceButton({
     super.key,
     required this.label,
-    required this.backgroundColor,
-    required this.foregroundColor,
+    this.status = ChoiceStatus.idle,
     this.onPressed,
-    required this.outlineColor,
   });
 
   final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
+  final ChoiceStatus status;
   final VoidCallback? onPressed;
-  final Color outlineColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bool isDefault =
-        backgroundColor == theme.colorScheme.onSurface ||
-        backgroundColor == Colors.transparent;
-    final correctColor = Colors.green;
+    final scheme = theme.colorScheme;
 
-    // Animated container provides a subtle animation when background color changes
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 260),
-      curve: Curves.easeInOut,
-      decoration: BoxDecoration(
-        color: isDefault ? Colors.transparent : backgroundColor,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(width: 1.5, color: outlineColor),
+    final (
+      Color background,
+      Color foreground,
+      Color border,
+      IconData? icon,
+    ) = switch (status) {
+      ChoiceStatus.idle => (
+        Colors.transparent,
+        scheme.onSurface,
+        scheme.outline,
+        null,
       ),
-      child: FilledButton(
-        style: ButtonStyle(
-          minimumSize: WidgetStatePropertyAll(const Size(double.infinity, 50)),
-          // keep button background transparent; we animate the container instead
-          backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-          foregroundColor: WidgetStatePropertyAll(foregroundColor),
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          ),
+      ChoiceStatus.correct => (
+        AppColors.correct,
+        Colors.white,
+        AppColors.correct,
+        Icons.check_rounded,
+      ),
+      ChoiceStatus.wrong => (
+        scheme.errorContainer,
+        scheme.onErrorContainer,
+        scheme.error,
+        Icons.close_rounded,
+      ),
+      ChoiceStatus.muted => (
+        Colors.transparent,
+        scheme.onSurface.withValues(alpha: 0.45),
+        scheme.outline.withValues(alpha: 0.4),
+        null,
+      ),
+      ChoiceStatus.eliminated => (
+        Colors.transparent,
+        scheme.onSurface.withValues(alpha: 0.35),
+        scheme.outline.withValues(alpha: 0.25),
+        Icons.block,
+      ),
+    };
+
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      label: label,
+      selected: status != ChoiceStatus.idle,
+      excludeSemantics: true,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(width: 1.5, color: border),
         ),
-        onPressed: onPressed,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  label,
-                  style: theme.textTheme.titleMedium!.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+        child: FilledButton(
+          style: ButtonStyle(
+            minimumSize: const WidgetStatePropertyAll(
+              Size(double.infinity, 56),
+            ),
+            // The colour lives on the animated container above; keep the
+            // button itself transparent so the transition is visible.
+            backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+            overlayColor: WidgetStatePropertyAll(
+              scheme.primary.withValues(alpha: 0.08),
+            ),
+            foregroundColor: WidgetStatePropertyAll(foreground),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 16),
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            ),
+          ),
+          onPressed: onPressed,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    label,
+                    style: theme.textTheme.titleMedium!.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: foreground,
+                    ),
                   ),
                 ),
               ),
-            ),
-            // animated circular indicator
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 260),
-              curve: Curves.easeInOut,
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: isDefault ? Colors.transparent : backgroundColor,
-                shape: BoxShape.circle,
-                border: Border.all(width: 1.5, color: outlineColor),
-              ),
-              child: Center(
-                child:
-                    isDefault
-                        ? const SizedBox.shrink()
-                        : (backgroundColor == correctColor
-                            ? const Icon(
-                              Icons.check,
-                              size: 14,
-                              color: Colors.white,
-                            )
-                            : const Icon(
-                              Icons.close,
-                              size: 14,
-                              color: Colors.white,
-                            )),
-              ),
-            ),
-          ],
+              if (icon != null) ...[
+                const SizedBox(width: 8),
+                Icon(icon, size: 18, color: foreground),
+              ],
+            ],
+          ),
         ),
       ),
     );

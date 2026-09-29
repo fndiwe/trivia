@@ -17,11 +17,7 @@ const LevelSchema = CollectionSchema(
   name: r'Level',
   id: 9002186168469810689,
   properties: {
-    r'score': PropertySchema(
-      id: 0,
-      name: r'score',
-      type: IsarType.long,
-    )
+    r'score': PropertySchema(id: 0, name: r'score', type: IsarType.long),
   },
   estimateSize: _levelEstimateSize,
   serialize: _levelSerialize,
@@ -61,10 +57,7 @@ Level _levelDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Level(
-    id: id,
-    score: reader.readLongOrNull(offsets[0]),
-  );
+  final object = Level(id: id, score: reader.readLongOrNull(offsets[0]));
   return object;
 }
 
@@ -103,10 +96,7 @@ extension LevelQueryWhereSort on QueryBuilder<Level, Level, QWhere> {
 extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
   QueryBuilder<Level, Level, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
     });
   }
 
@@ -132,8 +122,10 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
     });
   }
 
-  QueryBuilder<Level, Level, QAfterWhereClause> idGreaterThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Level, Level, QAfterWhereClause> idGreaterThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -141,8 +133,10 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
     });
   }
 
-  QueryBuilder<Level, Level, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<Level, Level, QAfterWhereClause> idLessThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -157,12 +151,14 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -170,10 +166,9 @@ extension LevelQueryWhere on QueryBuilder<Level, Level, QWhereClause> {
 extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
   QueryBuilder<Level, Level, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
     });
   }
 
@@ -182,11 +177,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -195,11 +192,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -210,38 +209,39 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Level, Level, QAfterFilterCondition> scoreIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'score',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'score'),
+      );
     });
   }
 
   QueryBuilder<Level, Level, QAfterFilterCondition> scoreIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'score',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'score'),
+      );
     });
   }
 
   QueryBuilder<Level, Level, QAfterFilterCondition> scoreEqualTo(int? value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'score',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'score', value: value),
+      );
     });
   }
 
@@ -250,11 +250,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'score',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'score',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -263,11 +265,13 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'score',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'score',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -278,13 +282,15 @@ extension LevelQueryFilter on QueryBuilder<Level, Level, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'score',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'score',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trivia/models/category.dart';
 import 'package:trivia/models/level.dart';
 import 'package:trivia/ui/widgets/rating_stars.dart';
+import 'package:trivia/l10n/l10n.dart';
+import 'package:trivia/l10n/category_names.dart';
 
 class GameHeader extends StatelessWidget {
   const GameHeader({
@@ -12,6 +14,7 @@ class GameHeader extends StatelessWidget {
     required this.score,
     this.category,
     this.level,
+    this.modeLabel,
     required this.onExit,
   });
 
@@ -20,6 +23,11 @@ class GameHeader extends StatelessWidget {
   final int score;
   final Category? category;
   final Level? level;
+
+  /// Shown instead of the level number for modes that have no level, e.g. the
+  /// daily challenge and the practice mode.
+  final String? modeLabel;
+
   final VoidCallback onExit;
 
   @override
@@ -34,14 +42,14 @@ class GameHeader extends StatelessWidget {
           color: Colors.red,
         ),
         Text(
-          'Q: $current/$total',
+          context.l10n.questionCounter(current, total),
           style: theme.textTheme.titleSmall!.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(width: 8),
         Text(
-          'Score: $score',
+          context.l10n.scoreLabel(score),
           style: theme.textTheme.titleSmall!.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -57,7 +65,7 @@ class GameHeader extends StatelessWidget {
               ),
               const SizedBox(width: 5),
               Text(
-                category!.name,
+                context.l10n.categoryLabel(category!.categoryId),
                 style: theme.textTheme.titleSmall!.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -66,7 +74,9 @@ class GameHeader extends StatelessWidget {
           )
         else
           Text(
-            'Level ${level?.id}',
+            level != null
+                ? context.l10n.levelLabel(level!.id)
+                : (modeLabel ?? ''),
             style: theme.textTheme.titleSmall!.copyWith(
               fontWeight: FontWeight.bold,
             ),
