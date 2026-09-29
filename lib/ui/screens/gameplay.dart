@@ -241,6 +241,7 @@ class _GamePlayScreenState extends State<GamePlayScreen>
       StatsRepository.recordAnswer(
         question: _trivia.question,
         correct: isCorrect,
+        category: _trivia.category,
       ),
     );
     if (_soundEnabled) {

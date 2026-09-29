@@ -15,6 +15,12 @@ class QuestionStat {
   @Index(unique: true, replace: true)
   final String question;
 
+  /// Category slug the question belongs to (denormalised for the per-category
+  /// statistics). Empty for rows written before this field existed. Non-final
+  /// so it can be backfilled when those rows are answered again.
+  @Index()
+  String category;
+
   int timesShown = 0;
   int timesCorrect = 0;
 
@@ -22,6 +28,7 @@ class QuestionStat {
 
   QuestionStat({
     required this.question,
+    this.category = '',
     this.timesShown = 0,
     this.timesCorrect = 0,
     this.lastAnsweredAt,

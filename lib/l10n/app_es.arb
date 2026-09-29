@@ -1,104 +1,198 @@
 {
   "@@locale": "es",
-
   "appTitle": "TriviaHQ",
   "tabLevels": "Niveles",
   "tabCategories": "Categorías",
-
   "settingsTooltip": "Ajustes",
   "statisticsTooltip": "Estadísticas",
   "streakBadge": "{count} días seguidos",
-  "@streakBadge": { "placeholders": { "count": { "type": "int" } } },
+  "@streakBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "streakBadgeNew": "¡{count} días seguidos!",
-  "@streakBadgeNew": { "placeholders": { "count": { "type": "int" } } },
+  "@streakBadgeNew": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "streakSemantics": "{count, plural, =1{1 día seguido} other{{count} días seguidos}}",
-  "@streakSemantics": { "placeholders": { "count": { "type": "int" } } },
-
+  "@streakSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "preparingBank": "Preparando el banco de preguntas",
   "importProgress": "{done} / {total}",
   "@importProgress": {
-    "placeholders": { "done": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "tryAgain": "Reintentar",
   "couldNotPrepare": "No se pudieron preparar los datos del cuestionario.",
-
   "dailyChallengeTitle": "Reto diario",
   "dailyChallengeDone": "Hecho por hoy: vuelve mañana",
   "dailyChallengeSubtitle": "Diez preguntas, las mismas para todos hoy",
   "practiceTitle": "Practica tus errores",
   "practiceSubtitle": "{count, plural, =1{1 pregunta por repasar} other{{count} preguntas por repasar}}",
-  "@practiceSubtitle": { "placeholders": { "count": { "type": "int" } } },
+  "@practiceSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "unlockHint": "Supera el nivel {previous} para desbloquear el nivel {next}.",
   "@unlockHint": {
-    "placeholders": { "previous": { "type": "int" }, "next": { "type": "int" } }
+    "placeholders": {
+      "previous": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
   },
-
   "questionCounter": "P: {current}/{total}",
   "@questionCounter": {
-    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "scoreLabel": "Puntos: {score}",
-  "@scoreLabel": { "placeholders": { "score": { "type": "int" } } },
+  "@scoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
   "levelLabel": "Nivel {number}",
-  "@levelLabel": { "placeholders": { "number": { "type": "int" } } },
+  "@levelLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "levelSemantics": "Nivel {number}",
-  "@levelSemantics": { "placeholders": { "number": { "type": "int" } } },
+  "@levelSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "levelLockedSemantics": "Nivel {number}, bloqueado",
-  "@levelLockedSemantics": { "placeholders": { "number": { "type": "int" } } },
+  "@levelLockedSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "levelWord": "Nivel",
   "modeDaily": "Reto diario",
   "modePractice": "Práctica",
   "modeLevel": "Nivel",
   "modeCategory": "Categoría",
-
   "noTimeLimit": "Sin límite de tiempo",
   "timeRemaining": "Tiempo restante",
   "secondsValue": "{seconds} segundos",
-  "@secondsValue": { "placeholders": { "seconds": { "type": "int" } } },
+  "@secondsValue": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "noTimerLabel": "Sin cronómetro",
-
   "lifeline5050": "50:50 - elimina dos respuestas incorrectas",
   "lifeline5050Used": "50:50 ya usado",
   "lifelineSkip": "Saltar esta pregunta",
   "lifelineSkipUsed": "Salto ya usado",
   "lifelineExtraTime": "+{seconds} segundos",
-  "@lifelineExtraTime": { "placeholders": { "seconds": { "type": "int" } } },
+  "@lifelineExtraTime": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "lifelineExtraTimeUsed": "Tiempo extra ya usado",
-
   "pauseTooltip": "Pausar",
   "resumeTooltip": "Continuar",
   "pausedTitle": "En pausa",
   "pausedSubtitle": "Tu progreso en esta ronda se conserva.",
   "resume": "Continuar",
   "quitRound": "Abandonar ronda",
-
   "exitGameTitle": "¿Salir de la partida?",
   "exitGameBody": "¿Quieres detener la partida? Perderás el progreso actual.",
   "exit": "Salir",
   "continueGame": "Seguir jugando",
-
   "noQuestions": "Todavía no hay preguntas para este cuestionario.",
   "nothingToPractise": "Aún no hay nada que practicar. Juega algunas rondas y las preguntas que falles aparecerán aquí.",
   "backToHome": "Volver al inicio",
   "couldNotLoad": "No se pudieron cargar las preguntas.",
-
   "resultsTitle": "Resultados",
   "playAgain": "Jugar otra vez",
   "home": "Inicio",
   "practiseTheseMistakes": "Practicar estos errores ({count})",
-  "@practiseTheseMistakes": { "placeholders": { "count": { "type": "int" } } },
+  "@practiseTheseMistakes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "review": "Repaso",
   "allCorrect": "Las {total} correctas",
-  "@allCorrect": { "placeholders": { "total": { "type": "int" } } },
+  "@allCorrect": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "correctOfTotal": "{correct}/{total} correctas",
   "@correctOfTotal": {
-    "placeholders": { "correct": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "newBestScore": "¡Nuevo récord!",
   "levelUnlocked": "¡Nivel {number} desbloqueado!",
-  "@levelUnlocked": { "placeholders": { "number": { "type": "int" } } },
+  "@levelUnlocked": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "couldNotSave": "No se pudo guardar esta ronda",
-
   "verdictCorrect": "Correcta",
   "verdictWrong": "Incorrecta",
   "verdictOutOfTime": "Se acabó el tiempo",
@@ -107,16 +201,34 @@
   "answerLabel": "Respuesta",
   "starRatingSemantics": "{earned} de {max} estrellas",
   "@starRatingSemantics": {
-    "placeholders": { "earned": { "type": "int" }, "max": { "type": "int" } }
+    "placeholders": {
+      "earned": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
   },
-
   "questionsCount": "{count} preguntas",
-  "@questionsCount": { "placeholders": { "count": { "type": "int" } } },
+  "@questionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "bestScore": "Récord: {score}/{total}",
   "@bestScore": {
-    "placeholders": { "score": { "type": "int" }, "total": { "type": "int" } }
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
-
   "settingsTitle": "Ajustes",
   "sectionAppearance": "Apariencia",
   "sectionGameplay": "Juego",
@@ -127,11 +239,23 @@
   "themeSystem": "Sistema",
   "questionsPerRound": "Preguntas por ronda",
   "questionsPerRoundValue": "{count} preguntas",
-  "@questionsPerRoundValue": { "placeholders": { "count": { "type": "int" } } },
+  "@questionsPerRoundValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "secondsPerQuestion": "Segundos por pregunta",
   "timerOff": "Desactivado",
   "timerSeconds": "{seconds} segundos",
-  "@timerSeconds": { "placeholders": { "seconds": { "type": "int" } } },
+  "@timerSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "soundEffects": "Efectos de sonido",
   "soundEffectsSubtitle": "Reproduce un sonido al acertar y al fallar.",
   "vibration": "Vibración",
@@ -143,7 +267,6 @@
   "cancel": "Cancelar",
   "reset": "Reiniciar",
   "progressReset": "Progreso reiniciado.",
-
   "statsTitle": "Estadísticas",
   "statAccuracy": "Acierto",
   "statRounds": "Rondas",
@@ -154,7 +277,6 @@
   "recentRounds": "Rondas recientes",
   "noRoundsYet": "Aún no has jugado ninguna ronda",
   "noRoundsHint": "Termina un nivel o una ronda de categoría y aquí verás tu porcentaje de acierto, tu récord y las preguntas más difíciles.",
-
   "categoryGeneral": "General",
   "categoryAnimals": "Animales",
   "categoryBrainTeasers": "Acertijos",
@@ -174,5 +296,21 @@
   "categorySports": "Deportes",
   "categoryTelevision": "Televisión",
   "categoryVideoGames": "Videojuegos",
-  "categoryWorld": "Mundo"
+  "categoryWorld": "Mundo",
+  "byCategory": "Por categoría",
+  "hardestQuestions": "Preguntas más difíciles",
+  "accuracyOf": "{percent}% ({correct}/{total})",
+  "@accuracyOf": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -200,4 +200,73 @@ void main() {
       expect(settings?.currentStreak, 0);
     });
   });
+
+  group('stats aggregation', () {
+    test('byCategory groups answers per category, worst first', () async {
+      skipUnlessIsar();
+      await StatsRepository.recordAnswer(
+        question: 'Sports question 1?',
+        correct: true,
+        category: 'sports',
+      );
+      await StatsRepository.recordAnswer(
+        question: 'Sports question 1?',
+        correct: false,
+        category: 'sports',
+      );
+      await StatsRepository.recordAnswer(
+        question: 'History question 1?',
+        correct: true,
+        category: 'history',
+      );
+      await StatsRepository.recordAnswer(
+        question: 'History question 2?',
+        correct: true,
+        category: 'history',
+      );
+
+      final byCategory = await StatsRepository.byCategory();
+      expect(byCategory, hasLength(2));
+      // sports: 1/2, history: 2/2 - worst (sports) first.
+      expect(byCategory.first.categoryId, 'sports');
+      expect(byCategory.first.correct, 1);
+      expect(byCategory.last.categoryId, 'history');
+      expect(byCategory.last.accuracy, 1);
+    });
+
+    test('hardestQuestions ranks by accuracy with a minimum sample', () async {
+      skipUnlessIsar();
+      await StatsRepository.recordAnswer(
+        question: 'Easy?',
+        correct: true,
+        category: 'sports',
+      );
+      await StatsRepository.recordAnswer(
+        question: 'Easy?',
+        correct: true,
+        category: 'sports',
+      );
+      await StatsRepository.recordAnswer(
+        question: 'Hard?',
+        correct: false,
+        category: 'sports',
+      );
+      await StatsRepository.recordAnswer(
+        question: 'Hard?',
+        correct: false,
+        category: 'sports',
+      );
+      await StatsRepository.recordAnswer(
+        question: 'One-off?',
+        correct: false,
+        category: 'sports',
+      );
+
+      final hardest = await StatsRepository.hardestQuestions(minTimesShown: 2);
+      expect(hardest.map((q) => q.question), contains('Hard?'));
+      expect(hardest.first.question, 'Hard?');
+      // A question answered only once does not qualify for the ranking.
+      expect(hardest.map((q) => q.question), isNot(contains('One-off?')));
+    });
+  });
 }

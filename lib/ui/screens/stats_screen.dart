@@ -1,8 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:trivia/l10n/category_names.dart';
+import 'package:trivia/models/category.dart';
+import 'package:trivia/models/question_stat.dart';
+import 'package:trivia/models/quiz_request.dart';
 import 'package:trivia/models/round_result.dart';
 import 'package:trivia/repository/stats_repository.dart';
+import 'package:trivia/utils/categories.dart';
+import 'package:trivia/utils/routes.dart';
 import 'package:trivia/l10n/l10n.dart';
 
 /// Everything the app has recorded about the player's play.
@@ -16,6 +22,8 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen> {
   PlayerStats? _stats;
   List<RoundResult> _recentRounds = const <RoundResult>[];
+  List<CategoryStats> _byCategory = const <CategoryStats>[];
+  List<QuestionStat> _hardest = const <QuestionStat>[];
   bool _loading = true;
 
   @override
@@ -28,10 +36,14 @@ class _StatsScreenState extends State<StatsScreen> {
     setState(() => _loading = true);
     final stats = await StatsRepository.load();
     final rounds = await StatsRepository.recentRounds();
+    final byCategory = await StatsRepository.byCategory();
+    final hardest = await StatsRepository.hardestQuestions();
     if (!mounted) return;
     setState(() {
       _stats = stats;
       _recentRounds = rounds;
+      _byCategory = byCategory;
+      _hardest = hardest;
       _loading = false;
     });
   }
@@ -62,6 +74,30 @@ class _StatsScreenState extends State<StatsScreen> {
                       const _EmptyStats()
                     else ...[
                       _StatGrid(stats: stats),
+                      if (_byCategory.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          context.l10n.byCategory,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        for (final category in _byCategory)
+                          _CategoryStatTile(stats: category),
+                      ],
+                      if (_hardest.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          context.l10n.hardestQuestions,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        for (final question in _hardest)
+                          _HardestQuestionTile(question: question),
+                      ],
                       const SizedBox(height: 24),
                       Text(
                         context.l10n.recentRounds,
@@ -278,3 +314,137 @@ String _modeLabel(BuildContext context, RoundMode mode) => switch (mode) {
   RoundMode.daily => context.l10n.modeDaily,
   RoundMode.practice => context.l10n.modePractice,
 };
+
+/// One category row in the \"By category\" section. Tapping it starts a round
+/// in that category, because the worst row is usually the one worth playing.
+class _CategoryStatTile extends StatelessWidget {
+  const _CategoryStatTile({required this.stats});
+
+  final CategoryStats stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final percent = (stats.accuracy * 100).round();
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        context.l10n.categoryLabel(stats.categoryId),
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: stats.accuracy,
+            minHeight: 6,
+            color: _accuracyColor(theme, stats.accuracy),
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+          ),
+        ),
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '$percent%',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: _accuracyColor(theme, stats.accuracy),
+            ),
+          ),
+          Text(
+            '${stats.correct}/${stats.answered}',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+      onTap: () {
+        final category = _findCategory(stats.categoryId);
+        if (category == null) return;
+        Navigator.of(
+          context,
+        ).pushNamed(Routes.gameplay, arguments: QuizRequest.category(category));
+      },
+    );
+  }
+
+  static Category? _findCategory(String categoryId) {
+    for (final category in Categories.categories) {
+      if (category.categoryId == categoryId) return category;
+    }
+    return null;
+  }
+
+  static Color _accuracyColor(ThemeData theme, double accuracy) {
+    if (accuracy >= 0.8) return Colors.green.shade600;
+    if (accuracy >= 0.5) return Colors.orange.shade700;
+    return theme.colorScheme.error;
+  }
+}
+
+/// One question row in the \"hardest questions\" section.
+class _HardestQuestionTile extends StatelessWidget {
+  const _HardestQuestionTile({required this.question});
+
+  final QuestionStat question;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final percent = (question.accuracy * 100).round();
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              question.question,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    question.category.isEmpty
+                        ? ''
+                        : context.l10n.categoryLabel(question.category),
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                Text(
+                  context.l10n.accuracyOf(
+                    percent,
+                    question.timesCorrect,
+                    question.timesShown,
+                  ),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

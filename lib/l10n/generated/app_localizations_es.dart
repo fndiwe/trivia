@@ -446,4 +446,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get categoryWorld => 'Mundo';
+
+  @override
+  String get byCategory => 'Por categoría';
+
+  @override
+  String get hardestQuestions => 'Preguntas más difíciles';
+
+  @override
+  String accuracyOf(int percent, int correct, int total) {
+    return '$percent% ($correct/$total)';
+  }
 }

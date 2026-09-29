@@ -3,6 +3,21 @@ import 'package:trivia/models/question_stat.dart';
 import 'package:trivia/models/round_result.dart';
 import 'package:trivia/repository/repository.dart';
 
+/// Accuracy for a single category, used by the statistics screen.
+class CategoryStats {
+  const CategoryStats({
+    required this.categoryId,
+    required this.answered,
+    required this.correct,
+  });
+
+  final String categoryId;
+  final int answered;
+  final int correct;
+
+  double get accuracy => answered == 0 ? 0 : correct / answered;
+}
+
 /// Totals shown on the statistics screen.
 class PlayerStats {
   const PlayerStats({
@@ -57,6 +72,7 @@ class StatsRepository {
   static Future<void> recordAnswer({
     required String question,
     required bool correct,
+    String category = '',
     DateTime? at,
   }) async {
     final isar = Repository.isar;
@@ -66,14 +82,71 @@ class StatsRepository {
 
     await isar.writeTxn(() async {
       if (existing == null) {
-        final stat = QuestionStat(question: question)
+        final stat = QuestionStat(question: question, category: category)
           ..record(correct: correct, at: moment);
         await isar.questionStats.put(stat);
       } else {
+        // Backfill the category on rows written before it was stored.
+        if (existing.category.isEmpty && category.isNotEmpty) {
+          existing.category = category;
+        }
         existing.record(correct: correct, at: moment);
         await isar.questionStats.put(existing);
       }
     });
+  }
+
+  /// Per-category breakdown for the statistics screen, worst accuracy first.
+  static Future<List<CategoryStats>> byCategory() async {
+    final isar = Repository.isar;
+    final stats = await isar.questionStats.where().findAll();
+    final totals = <String, List<int>>{};
+    for (final stat in stats) {
+      if (stat.category.isEmpty || stat.timesShown == 0) continue;
+      final entry = totals.putIfAbsent(stat.category, () => [0, 0]);
+      entry[0] += stat.timesShown;
+      entry[1] += stat.timesCorrect;
+    }
+    final list =
+        totals.entries
+            .map(
+              (entry) => CategoryStats(
+                categoryId: entry.key,
+                answered: entry.value[0],
+                correct: entry.value[1],
+              ),
+            )
+            .toList()
+          ..sort((a, b) {
+            final byAccuracy = a.accuracy.compareTo(b.accuracy);
+            if (byAccuracy != 0) return byAccuracy;
+            return b.answered.compareTo(a.answered);
+          });
+    return list;
+  }
+
+  /// Questions with the lowest accuracy, for the "hardest questions" section.
+  static Future<List<QuestionStat>> hardestQuestions({
+    int limit = 10,
+    String? categoryId,
+    int minTimesShown = 2,
+  }) async {
+    final isar = Repository.isar;
+    final stats = await isar.questionStats.where().findAll();
+    final filtered =
+        stats
+            .where(
+              (stat) =>
+                  stat.timesShown >= minTimesShown &&
+                  (categoryId == null || stat.category == categoryId),
+            )
+            .toList()
+          ..sort((a, b) {
+            final byAccuracy = a.accuracy.compareTo(b.accuracy);
+            if (byAccuracy != 0) return byAccuracy;
+            return b.timesShown.compareTo(a.timesShown);
+          });
+    return filtered.take(limit).toList();
   }
 
   /// Questions that have been answered wrongly at least once, hardest first.

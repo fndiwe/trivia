@@ -847,6 +847,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'World'**
   String get categoryWorld;
+
+  /// No description provided for @byCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get byCategory;
+
+  /// No description provided for @hardestQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardest questions'**
+  String get hardestQuestions;
+
+  /// No description provided for @accuracyOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% ({correct}/{total})'**
+  String accuracyOf(int percent, int correct, int total);
 }
 
 class _AppLocalizationsDelegate
