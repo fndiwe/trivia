@@ -323,5 +323,30 @@
         "type": "int"
       }
     }
+  },
+  "shareButton": "Share",
+  "shareResultText": "I scored {score}/{total} on {mode} in TriviaHQ. Can you beat me?",
+  "shareUnavailable": "Sharing isn't available on this device.",
+  "starsOf": "{stars} out of 3 stars",
+  "canYouBeatMe": "Can you beat me?",
+  "@shareResultText": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "@starsOf": {
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
   }
 }

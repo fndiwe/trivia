@@ -1,8 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:trivia/l10n/category_names.dart';
 import 'package:trivia/models/quiz_request.dart';
+import 'package:trivia/models/round_result.dart';
 import 'package:trivia/models/round_outcome.dart';
 import 'package:trivia/models/round_summary.dart';
 import 'package:trivia/provider/home.dart';
@@ -12,6 +17,7 @@ import 'package:trivia/ui/screens/gameplay.dart';
 import 'package:trivia/ui/widgets/answered_question_tile.dart';
 import 'package:trivia/ui/widgets/confetti_burst.dart';
 import 'package:trivia/ui/widgets/rating_stars.dart';
+import 'package:trivia/ui/widgets/result_share_card.dart';
 import 'package:trivia/utils/scoring.dart';
 import 'package:trivia/utils/sound_player.dart';
 import 'package:trivia/l10n/l10n.dart';
@@ -32,6 +38,9 @@ class _ResultScreenState extends State<ResultScreen> {
 
   RoundSummary? _summary;
   bool _saveFailed = false;
+
+  /// Repaint boundary around the (invisible) share card.
+  final GlobalKey _cardKey = GlobalKey();
 
   RoundOutcome get _outcome => widget.outcome;
 
@@ -84,6 +93,67 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
+  /// Whether the platform can share at all (share_plus has no Linux or
+  /// Windows implementation, so the button is hidden there rather than
+  /// guaranteed to fail).
+  bool get _canShare =>
+      kIsWeb ||
+      const {
+        TargetPlatform.android,
+        TargetPlatform.iOS,
+        TargetPlatform.macOS,
+      }.contains(defaultTargetPlatform);
+
+  String _shareText() {
+    final modeLabel = switch (_outcome.request.mode) {
+      RoundMode.level => context.l10n.levelLabel(
+        _outcome.request.level?.id ?? 0,
+      ),
+      RoundMode.category => context.l10n.categoryLabel(
+        _outcome.request.category?.categoryId ?? '',
+      ),
+      RoundMode.daily => context.l10n.modeDaily,
+      RoundMode.practice => context.l10n.modePractice,
+    };
+    return context.l10n.shareResultText(
+      _outcome.score,
+      _outcome.total,
+      modeLabel,
+    );
+  }
+
+  /// Captures the hidden share card and hands it to the system share sheet.
+  ///
+  /// Falls back to sharing the text alone when the image cannot be captured,
+  /// and to a snackbar when the platform cannot share anything.
+  Future<void> _share() async {
+    try {
+      final bytes = await captureShareCard(_cardKey);
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [
+            XFile.fromData(
+              bytes,
+              name: 'trivia_result.png',
+              mimeType: 'image/png',
+            ),
+          ],
+          text: _shareText(),
+        ),
+      );
+    } catch (_) {
+      try {
+        // Image capture or image sharing failed: fall back to plain text.
+        await SharePlus.instance.share(ShareParams(text: _shareText()));
+      } catch (_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.shareUnavailable)));
+      }
+    }
+  }
+
   Future<void> _playAgain() async {
     await Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
@@ -124,82 +194,101 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 12, left: 12),
-                  child: IconButton.filled(
-                    tooltip: context.l10n.backToHome,
-                    style: IconButton.styleFrom(
-                      backgroundColor: theme.colorScheme.surface,
-                      foregroundColor: theme.colorScheme.onSurface,
-                      minimumSize: const Size(24, 24),
-                    ),
-                    icon: const Icon(Icons.close_rounded, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-                  children: [
-                    Center(
-                      child: Text(
-                        context.l10n.resultsTitle,
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          color: theme.colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
+              Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 12, left: 12),
+                      child: IconButton.filled(
+                        tooltip: context.l10n.backToHome,
+                        style: IconButton.styleFrom(
+                          backgroundColor: theme.colorScheme.surface,
+                          foregroundColor: theme.colorScheme.onSurface,
+                          minimumSize: const Size(24, 24),
                         ),
+                        icon: const Icon(Icons.close_rounded, size: 20),
+                        onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    if (showConfetti) ...[
-                      const Center(child: ConfettiBurst()),
-                      const SizedBox(height: 8),
-                    ],
-                    ..._badges(theme),
-                    if (_saveFailed)
-                      _Badge(
-                        icon: Icons.cloud_off_outlined,
-                        label: context.l10n.couldNotSave,
-                      ),
-                    Center(
-                      child: _ScoreRing(
-                        score: _outcome.score,
-                        total: _outcome.total,
-                      ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                      children: [
+                        Center(
+                          child: Text(
+                            context.l10n.resultsTitle,
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              color: theme.colorScheme.onPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (showConfetti) ...[
+                          const Center(child: ConfettiBurst()),
+                          const SizedBox(height: 8),
+                        ],
+                        ..._badges(theme),
+                        if (_saveFailed)
+                          _Badge(
+                            icon: Icons.cloud_off_outlined,
+                            label: context.l10n.couldNotSave,
+                          ),
+                        Center(
+                          child: _ScoreRing(
+                            score: _outcome.score,
+                            total: _outcome.total,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        RatingStars(
+                          score: _outcome.score,
+                          numberOfQuestions: _outcome.total,
+                          size: 40,
+                          center: true,
+                        ),
+                        const SizedBox(height: 20),
+                        _ActionButtons(
+                          onPlayAgain: _playAgain,
+                          onHome: () => Navigator.of(context).pop(),
+                          onShare: _canShare ? _share : null,
+                          onPractise:
+                              _summary != null &&
+                                      _summary!.practiceQuestionCount > 0
+                                  ? _practiseMistakes
+                                  : null,
+                          practiceCount: _summary?.practiceQuestionCount ?? 0,
+                        ),
+                        const SizedBox(height: 24),
+                        _ReviewHeader(
+                          total: _outcome.total,
+                          correct: _outcome.correctCount,
+                          mistakes: _outcome.mistakes.length,
+                        ),
+                        const SizedBox(height: 8),
+                        for (final (index, answer) in _outcome.answers.indexed)
+                          AnsweredQuestionTile(answer: answer, index: index),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    RatingStars(
-                      score: _outcome.score,
-                      numberOfQuestions: _outcome.total,
-                      size: 40,
-                      center: true,
+                  ),
+                ],
+              ),
+              // The share card: laid out and painted (so it can be captured to
+              // a PNG) but invisible and transparent to taps.
+              Opacity(
+                opacity: 0,
+                child: IgnorePointer(
+                  child: RepaintBoundary(
+                    key: _cardKey,
+                    child: ResultShareCard(
+                      outcome: _outcome,
+                      streak: _summary?.streak ?? 0,
                     ),
-                    const SizedBox(height: 20),
-                    _ActionButtons(
-                      onPlayAgain: _playAgain,
-                      onHome: () => Navigator.of(context).pop(),
-                      onPractise:
-                          _summary != null &&
-                                  _summary!.practiceQuestionCount > 0
-                              ? _practiseMistakes
-                              : null,
-                      practiceCount: _summary?.practiceQuestionCount ?? 0,
-                    ),
-                    const SizedBox(height: 24),
-                    _ReviewHeader(
-                      total: _outcome.total,
-                      correct: _outcome.correctCount,
-                      mistakes: _outcome.mistakes.length,
-                    ),
-                    const SizedBox(height: 8),
-                    for (final (index, answer) in _outcome.answers.indexed)
-                      AnsweredQuestionTile(answer: answer, index: index),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -345,11 +434,16 @@ class _ActionButtons extends StatelessWidget {
     required this.onHome,
     required this.practiceCount,
     this.onPractise,
+    this.onShare,
   });
 
   final VoidCallback onPlayAgain;
   final VoidCallback onHome;
   final VoidCallback? onPractise;
+
+  /// Null on platforms that cannot share (the button is then hidden).
+  final VoidCallback? onShare;
+
   final int practiceCount;
 
   @override
@@ -372,6 +466,12 @@ class _ActionButtons extends StatelessWidget {
               icon: const Icon(Icons.home_outlined),
               label: Text(context.l10n.home),
             ),
+            if (onShare != null)
+              FilledButton.tonalIcon(
+                onPressed: onShare,
+                icon: const Icon(Icons.share_outlined),
+                label: Text(context.l10n.shareButton),
+              ),
           ],
         ),
         if (onPractise != null) ...[

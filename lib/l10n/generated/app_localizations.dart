@@ -889,6 +889,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Campaign is already well ordered.'**
   String get rebalanceNothing;
+
+  /// No description provided for @shareButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareButton;
+
+  /// No description provided for @shareResultText.
+  ///
+  /// In en, this message translates to:
+  /// **'I scored {score}/{total} on {mode} in TriviaHQ. Can you beat me?'**
+  String shareResultText(int score, int total, String mode);
+
+  /// No description provided for @shareUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing isn\'t available on this device.'**
+  String get shareUnavailable;
+
+  /// No description provided for @starsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{stars} out of 3 stars'**
+  String starsOf(int stars);
+
+  /// No description provided for @canYouBeatMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Can you beat me?'**
+  String get canYouBeatMe;
 }
 
 class _AppLocalizationsDelegate

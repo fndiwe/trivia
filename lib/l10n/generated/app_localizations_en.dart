@@ -471,4 +471,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rebalanceNothing => 'Campaign is already well ordered.';
+
+  @override
+  String get shareButton => 'Share';
+
+  @override
+  String shareResultText(int score, int total, String mode) {
+    return 'I scored $score/$total on $mode in TriviaHQ. Can you beat me?';
+  }
+
+  @override
+  String get shareUnavailable => 'Sharing isn\'t available on this device.';
+
+  @override
+  String starsOf(int stars) {
+    return '$stars out of 3 stars';
+  }
+
+  @override
+  String get canYouBeatMe => 'Can you beat me?';
 }

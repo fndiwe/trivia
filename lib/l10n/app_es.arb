@@ -323,5 +323,30 @@
         "type": "int"
       }
     }
+  },
+  "shareButton": "Compartir",
+  "shareResultText": "He sacado {score}/{total} en {mode} en TriviaHQ. ¿Me superas?",
+  "shareUnavailable": "Compartir no está disponible en este dispositivo.",
+  "starsOf": "{stars} de 3 estrellas",
+  "canYouBeatMe": "¿Me superas?",
+  "@shareResultText": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "@starsOf": {
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
   }
 }
