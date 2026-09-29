@@ -55,6 +55,20 @@ class SettingsScreen extends StatelessWidget {
       ),
   ];
 
+  Future<void> _rebalance(BuildContext context) async {
+    final summary = await ProgressRepository.rebalanceCampaign();
+    if (!context.mounted) return;
+    await context.read<HomeProvider>().loadAll();
+    if (!context.mounted) return;
+    final message =
+        summary.anythingMoved
+            ? context.l10n.rebalanceDone(summary.movedQuestions)
+            : context.l10n.rebalanceNothing;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _confirmReset(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -189,6 +203,18 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(height: 1),
           _SectionTitle(context.l10n.sectionData),
+          ListTile(
+            leading: Icon(
+              Icons.auto_graph_outlined,
+              color: theme.colorScheme.primary,
+            ),
+            title: Text(
+              context.l10n.rebalanceTitle,
+              style: theme.textTheme.titleMedium,
+            ),
+            subtitle: Text(context.l10n.rebalanceSubtitle),
+            onTap: () => _rebalance(context),
+          ),
           ListTile(
             leading: Icon(Icons.restart_alt, color: theme.colorScheme.error),
             title: Text(

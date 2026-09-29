@@ -312,5 +312,16 @@
         "type": "int"
       }
     }
+  },
+  "rebalanceTitle": "Rebalance campaign",
+  "rebalanceSubtitle": "Re-order levels by difficulty, using your statistics.",
+  "rebalanceDone": "Campaign rebalanced ({moved} questions moved).",
+  "rebalanceNothing": "Campaign is already well ordered.",
+  "@rebalanceDone": {
+    "placeholders": {
+      "moved": {
+        "type": "int"
+      }
+    }
   }
 }

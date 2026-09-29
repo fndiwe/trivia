@@ -28,9 +28,14 @@ const TriviaSchema = CollectionSchema(
       name: r'choices',
       type: IsarType.stringList,
     ),
-    r'level': PropertySchema(id: 3, name: r'level', type: IsarType.long),
+    r'difficulty': PropertySchema(
+      id: 3,
+      name: r'difficulty',
+      type: IsarType.double,
+    ),
+    r'level': PropertySchema(id: 4, name: r'level', type: IsarType.long),
     r'question': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'question',
       type: IsarType.string,
     ),
@@ -80,6 +85,19 @@ const TriviaSchema = CollectionSchema(
         ),
       ],
     ),
+    r'difficulty': IndexSchema(
+      id: 3042583923453520767,
+      name: r'difficulty',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'difficulty',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+      ],
+    ),
   },
   links: {},
   embeddedSchemas: {},
@@ -117,8 +135,9 @@ void _triviaSerialize(
   writer.writeString(offsets[0], object.answer);
   writer.writeString(offsets[1], object.category);
   writer.writeStringList(offsets[2], object.choices);
-  writer.writeLong(offsets[3], object.level);
-  writer.writeString(offsets[4], object.question);
+  writer.writeDouble(offsets[3], object.difficulty);
+  writer.writeLong(offsets[4], object.level);
+  writer.writeString(offsets[5], object.question);
 }
 
 Trivia _triviaDeserialize(
@@ -131,8 +150,9 @@ Trivia _triviaDeserialize(
     answer: reader.readString(offsets[0]),
     category: reader.readString(offsets[1]),
     choices: reader.readStringList(offsets[2]) ?? [],
-    level: reader.readLongOrNull(offsets[3]) ?? 0,
-    question: reader.readString(offsets[4]),
+    difficulty: reader.readDoubleOrNull(offsets[3]) ?? 0.5,
+    level: reader.readLongOrNull(offsets[4]) ?? 0,
+    question: reader.readString(offsets[5]),
   );
   object.id = id;
   return object;
@@ -152,8 +172,10 @@ P _triviaDeserializeProp<P>(
     case 2:
       return (reader.readStringList(offset) ?? []) as P;
     case 3:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
+      return (reader.readDoubleOrNull(offset) ?? 0.5) as P;
     case 4:
+      return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -183,6 +205,14 @@ extension TriviaQueryWhereSort on QueryBuilder<Trivia, Trivia, QWhere> {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         const IndexWhereClause.any(indexName: r'level'),
+      );
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhere> anyDifficulty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'difficulty'),
       );
     });
   }
@@ -463,6 +493,111 @@ extension TriviaQueryWhere on QueryBuilder<Trivia, Trivia, QWhereClause> {
               ),
             );
       }
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> difficultyEqualTo(
+    double difficulty,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'difficulty', value: [difficulty]),
+      );
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> difficultyNotEqualTo(
+    double difficulty,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'difficulty',
+                lower: [],
+                upper: [difficulty],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'difficulty',
+                lower: [difficulty],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'difficulty',
+                lower: [difficulty],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'difficulty',
+                lower: [],
+                upper: [difficulty],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> difficultyGreaterThan(
+    double difficulty, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'difficulty',
+          lower: [difficulty],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> difficultyLessThan(
+    double difficulty, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'difficulty',
+          lower: [],
+          upper: [difficulty],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterWhereClause> difficultyBetween(
+    double lowerDifficulty,
+    double upperDifficulty, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'difficulty',
+          lower: [lowerDifficulty],
+          includeLower: includeLower,
+          upper: [upperDifficulty],
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -962,6 +1097,76 @@ extension TriviaQueryFilter on QueryBuilder<Trivia, Trivia, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Trivia, Trivia, QAfterFilterCondition> difficultyEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'difficulty',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterFilterCondition> difficultyGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'difficulty',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterFilterCondition> difficultyLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'difficulty',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterFilterCondition> difficultyBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'difficulty',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Trivia, Trivia, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1252,6 +1457,18 @@ extension TriviaQuerySortBy on QueryBuilder<Trivia, Trivia, QSortBy> {
     });
   }
 
+  QueryBuilder<Trivia, Trivia, QAfterSortBy> sortByDifficulty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'difficulty', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterSortBy> sortByDifficultyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'difficulty', Sort.desc);
+    });
+  }
+
   QueryBuilder<Trivia, Trivia, QAfterSortBy> sortByLevel() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'level', Sort.asc);
@@ -1299,6 +1516,18 @@ extension TriviaQuerySortThenBy on QueryBuilder<Trivia, Trivia, QSortThenBy> {
   QueryBuilder<Trivia, Trivia, QAfterSortBy> thenByCategoryDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterSortBy> thenByDifficulty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'difficulty', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Trivia, Trivia, QAfterSortBy> thenByDifficultyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'difficulty', Sort.desc);
     });
   }
 
@@ -1362,6 +1591,12 @@ extension TriviaQueryWhereDistinct on QueryBuilder<Trivia, Trivia, QDistinct> {
     });
   }
 
+  QueryBuilder<Trivia, Trivia, QDistinct> distinctByDifficulty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'difficulty');
+    });
+  }
+
   QueryBuilder<Trivia, Trivia, QDistinct> distinctByLevel() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'level');
@@ -1399,6 +1634,12 @@ extension TriviaQueryProperty on QueryBuilder<Trivia, Trivia, QQueryProperty> {
   QueryBuilder<Trivia, List<String>, QQueryOperations> choicesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'choices');
+    });
+  }
+
+  QueryBuilder<Trivia, double, QQueryOperations> difficultyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'difficulty');
     });
   }
 

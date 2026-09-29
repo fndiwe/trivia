@@ -456,4 +456,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String accuracyOf(int percent, int correct, int total) {
     return '$percent% ($correct/$total)';
   }
+
+  @override
+  String get rebalanceTitle => 'Rebalance campaign';
+
+  @override
+  String get rebalanceSubtitle =>
+      'Re-order levels by difficulty, using your statistics.';
+
+  @override
+  String rebalanceDone(int moved) {
+    return 'Campaign rebalanced ($moved questions moved).';
+  }
+
+  @override
+  String get rebalanceNothing => 'Campaign is already well ordered.';
 }

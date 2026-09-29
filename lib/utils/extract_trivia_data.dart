@@ -9,6 +9,7 @@ import 'package:trivia/models/level.dart';
 import 'package:trivia/models/trivia.dart';
 import 'package:trivia/repository/repository.dart';
 import 'package:trivia/utils/categories.dart';
+import 'package:trivia/utils/difficulty.dart';
 import 'package:trivia/utils/scoring.dart';
 
 /// Bump this whenever `assets/trivia.json` changes.
@@ -41,7 +42,17 @@ List<Trivia> parseQuestionBank(String json) {
   for (final entry in decoded) {
     if (entry is Map<String, dynamic>) {
       final trivia = Trivia.tryFromMap(entry);
-      if (trivia != null) questions.add(trivia);
+      if (trivia != null) {
+        questions.add(
+          trivia.withDifficulty(
+            estimateDifficulty(
+              question: trivia.question,
+              answer: trivia.answer,
+              choices: trivia.choices,
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -70,12 +81,18 @@ Future<int> importQuestionBank({ImportProgress? onProgress}) async {
   final questions = await compute(parseQuestionBank, jsonString);
   final total = questions.length;
 
+  // Rank by intrinsic difficulty so the early levels are the easy ones. The
+  // parse step already shuffled deterministically, so questions of equal
+  // difficulty keep a random order.
+  final ranked = List<Trivia>.of(questions)
+    ..sort((a, b) => a.difficulty.compareTo(b.difficulty));
+
   // Questions first, in batches.
   for (var start = 0; start < total; start += _importBatchSize) {
     final end = (start + _importBatchSize).clamp(0, total);
     final batch = <Trivia>[
       for (var index = start; index < end; index++)
-        questions[index].withLevel((index ~/ questionsPerLevel) + 1),
+        ranked[index].withLevel((index ~/ questionsPerLevel) + 1),
     ];
     await isar.writeTxn(() async {
       await isar.trivias.putAll(batch);

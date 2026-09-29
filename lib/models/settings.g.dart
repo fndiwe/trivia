@@ -42,28 +42,33 @@ const SettingsSchema = CollectionSchema(
       name: r'lastPlayedOn',
       type: IsarType.dateTime,
     ),
-    r'longestStreak': PropertySchema(
+    r'lastRebalancedOn': PropertySchema(
       id: 5,
+      name: r'lastRebalancedOn',
+      type: IsarType.dateTime,
+    ),
+    r'longestStreak': PropertySchema(
+      id: 6,
       name: r'longestStreak',
       type: IsarType.long,
     ),
     r'questionBankVersion': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'questionBankVersion',
       type: IsarType.long,
     ),
     r'secondsPerQuestion': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'secondsPerQuestion',
       type: IsarType.long,
     ),
     r'soundEnabled': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'soundEnabled',
       type: IsarType.bool,
     ),
     r'theme': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'theme',
       type: IsarType.byte,
       enumMap: _SettingsthemeEnumValueMap,
@@ -103,11 +108,12 @@ void _settingsSerialize(
   writer.writeDateTime(offsets[2], object.dailyChallengeCompletedOn);
   writer.writeBool(offsets[3], object.hapticsEnabled);
   writer.writeDateTime(offsets[4], object.lastPlayedOn);
-  writer.writeLong(offsets[5], object.longestStreak);
-  writer.writeLong(offsets[6], object.questionBankVersion);
-  writer.writeLong(offsets[7], object.secondsPerQuestion);
-  writer.writeBool(offsets[8], object.soundEnabled);
-  writer.writeByte(offsets[9], object.theme.index);
+  writer.writeDateTime(offsets[5], object.lastRebalancedOn);
+  writer.writeLong(offsets[6], object.longestStreak);
+  writer.writeLong(offsets[7], object.questionBankVersion);
+  writer.writeLong(offsets[8], object.secondsPerQuestion);
+  writer.writeBool(offsets[9], object.soundEnabled);
+  writer.writeByte(offsets[10], object.theme.index);
 }
 
 Settings _settingsDeserialize(
@@ -124,13 +130,14 @@ Settings _settingsDeserialize(
     hapticsEnabled: reader.readBoolOrNull(offsets[3]) ?? true,
     id: id,
     lastPlayedOn: reader.readDateTimeOrNull(offsets[4]),
-    longestStreak: reader.readLongOrNull(offsets[5]) ?? 0,
-    questionBankVersion: reader.readLongOrNull(offsets[6]) ?? 0,
+    lastRebalancedOn: reader.readDateTimeOrNull(offsets[5]),
+    longestStreak: reader.readLongOrNull(offsets[6]) ?? 0,
+    questionBankVersion: reader.readLongOrNull(offsets[7]) ?? 0,
     secondsPerQuestion:
-        reader.readLongOrNull(offsets[7]) ?? defaultSecondsPerQuestion,
-    soundEnabled: reader.readBoolOrNull(offsets[8]) ?? true,
+        reader.readLongOrNull(offsets[8]) ?? defaultSecondsPerQuestion,
+    soundEnabled: reader.readBoolOrNull(offsets[9]) ?? true,
     theme:
-        _SettingsthemeValueEnumMap[reader.readByteOrNull(offsets[9])] ??
+        _SettingsthemeValueEnumMap[reader.readByteOrNull(offsets[10])] ??
         ThemeMode.system,
   );
   return object;
@@ -154,14 +161,16 @@ P _settingsDeserializeProp<P>(
     case 4:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 6:
       return (reader.readLongOrNull(offset) ?? 0) as P;
     case 7:
-      return (reader.readLongOrNull(offset) ?? defaultSecondsPerQuestion) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 8:
-      return (reader.readBoolOrNull(offset) ?? true) as P;
+      return (reader.readLongOrNull(offset) ?? defaultSecondsPerQuestion) as P;
     case 9:
+      return (reader.readBoolOrNull(offset) ?? true) as P;
+    case 10:
       return (_SettingsthemeValueEnumMap[reader.readByteOrNull(offset)] ??
               ThemeMode.system)
           as P;
@@ -601,6 +610,79 @@ extension SettingsQueryFilter
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastRebalancedOnIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'lastRebalancedOn'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastRebalancedOnIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'lastRebalancedOn'),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastRebalancedOnEqualTo(DateTime? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lastRebalancedOn', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastRebalancedOnGreaterThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastRebalancedOn',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastRebalancedOnLessThan(DateTime? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastRebalancedOn',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition>
+  lastRebalancedOnBetween(
+    DateTime? lower,
+    DateTime? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastRebalancedOn',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterFilterCondition> longestStreakEqualTo(
     int value,
   ) {
@@ -907,6 +989,18 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByLastRebalancedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastRebalancedOn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByLastRebalancedOnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastRebalancedOn', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> sortByLongestStreak() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'longestStreak', Sort.asc);
@@ -1046,6 +1140,18 @@ extension SettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByLastRebalancedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastRebalancedOn', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByLastRebalancedOnDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastRebalancedOn', Sort.desc);
+    });
+  }
+
   QueryBuilder<Settings, Settings, QAfterSortBy> thenByLongestStreak() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'longestStreak', Sort.asc);
@@ -1142,6 +1248,12 @@ extension SettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Settings, Settings, QDistinct> distinctByLastRebalancedOn() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'lastRebalancedOn');
+    });
+  }
+
   QueryBuilder<Settings, Settings, QDistinct> distinctByLongestStreak() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'longestStreak');
@@ -1209,6 +1321,13 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, DateTime?, QQueryOperations> lastPlayedOnProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastPlayedOn');
+    });
+  }
+
+  QueryBuilder<Settings, DateTime?, QQueryOperations>
+  lastRebalancedOnProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastRebalancedOn');
     });
   }
 

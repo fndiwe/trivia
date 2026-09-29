@@ -865,6 +865,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percent}% ({correct}/{total})'**
   String accuracyOf(int percent, int correct, int total);
+
+  /// No description provided for @rebalanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebalance campaign'**
+  String get rebalanceTitle;
+
+  /// No description provided for @rebalanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-order levels by difficulty, using your statistics.'**
+  String get rebalanceSubtitle;
+
+  /// No description provided for @rebalanceDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Campaign rebalanced ({moved} questions moved).'**
+  String rebalanceDone(int moved);
+
+  /// No description provided for @rebalanceNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Campaign is already well ordered.'**
+  String get rebalanceNothing;
 }
 
 class _AppLocalizationsDelegate

@@ -42,6 +42,10 @@ class Settings {
   /// whether today's is still open.
   DateTime? dailyChallengeCompletedOn;
 
+  /// When the campaign was last rebalanced against the player's statistics.
+  /// Used to re-balance at most once a day instead of after every round.
+  DateTime? lastRebalancedOn;
+
   Settings({
     this.id = 1,
     this.theme = ThemeMode.system,
@@ -54,6 +58,7 @@ class Settings {
     this.currentStreak = 0,
     this.longestStreak = 0,
     this.dailyChallengeCompletedOn,
+    this.lastRebalancedOn,
   });
 
   Settings copyWith({
@@ -67,6 +72,7 @@ class Settings {
     int? currentStreak,
     int? longestStreak,
     DateTime? dailyChallengeCompletedOn,
+    DateTime? lastRebalancedOn,
   }) => Settings(
     id: id,
     theme: theme ?? this.theme,
@@ -80,5 +86,6 @@ class Settings {
     longestStreak: longestStreak ?? this.longestStreak,
     dailyChallengeCompletedOn:
         dailyChallengeCompletedOn ?? this.dailyChallengeCompletedOn,
+    lastRebalancedOn: lastRebalancedOn ?? this.lastRebalancedOn,
   );
 }

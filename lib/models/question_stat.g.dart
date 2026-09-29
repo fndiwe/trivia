@@ -41,7 +41,7 @@ const QuestionStatSchema = CollectionSchema(
       id: 4,
       name: r'timesShown',
       type: IsarType.long,
-    )
+    ),
   },
   estimateSize: _questionStatEstimateSize,
   serialize: _questionStatSerialize,
@@ -59,7 +59,7 @@ const QuestionStatSchema = CollectionSchema(
           name: r'question',
           type: IndexType.hash,
           caseSensitive: true,
-        )
+        ),
       ],
     ),
     r'category': IndexSchema(
@@ -72,9 +72,9 @@ const QuestionStatSchema = CollectionSchema(
           name: r'category',
           type: IndexType.hash,
           caseSensitive: true,
-        )
+        ),
       ],
-    )
+    ),
   },
   links: {},
   embeddedSchemas: {},
@@ -156,7 +156,10 @@ List<IsarLinkBase<dynamic>> _questionStatGetLinks(QuestionStat object) {
 }
 
 void _questionStatAttach(
-    IsarCollection<dynamic> col, Id id, QuestionStat object) {
+  IsarCollection<dynamic> col,
+  Id id,
+  QuestionStat object,
+) {
   object.id = id;
 }
 
@@ -209,8 +212,10 @@ extension QuestionStatByIndex on IsarCollection<QuestionStat> {
     return putAllByIndex(r'question', objects);
   }
 
-  List<Id> putAllByQuestionSync(List<QuestionStat> objects,
-      {bool saveLinks = true}) {
+  List<Id> putAllByQuestionSync(
+    List<QuestionStat> objects, {
+    bool saveLinks = true,
+  }) {
     return putAllByIndexSync(r'question', objects, saveLinks: saveLinks);
   }
 }
@@ -228,15 +233,13 @@ extension QuestionStatQueryWhere
     on QueryBuilder<QuestionStat, QuestionStat, QWhereClause> {
   QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause> idNotEqualTo(
-      Id id) {
+    Id id,
+  ) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -259,8 +262,9 @@ extension QuestionStatQueryWhere
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause> idGreaterThan(
-      Id id,
-      {bool include = false}) {
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -268,8 +272,10 @@ extension QuestionStatQueryWhere
     });
   }
 
-  QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause> idLessThan(
+    Id id, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -284,101 +290,119 @@ extension QuestionStatQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause> questionEqualTo(
-      String question) {
+    String question,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'question',
-        value: [question],
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'question', value: [question]),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause>
-      questionNotEqualTo(String question) {
+  questionNotEqualTo(String question) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'question',
-              lower: [],
-              upper: [question],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'question',
-              lower: [question],
-              includeLower: false,
-              upper: [],
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'question',
+                lower: [],
+                upper: [question],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'question',
+                lower: [question],
+                includeLower: false,
+                upper: [],
+              ),
+            );
       } else {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'question',
-              lower: [question],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'question',
-              lower: [],
-              upper: [question],
-              includeUpper: false,
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'question',
+                lower: [question],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'question',
+                lower: [],
+                upper: [question],
+                includeUpper: false,
+              ),
+            );
       }
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause> categoryEqualTo(
-      String category) {
+    String category,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'category',
-        value: [category],
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'category', value: [category]),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterWhereClause>
-      categoryNotEqualTo(String category) {
+  categoryNotEqualTo(String category) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'category',
-              lower: [],
-              upper: [category],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'category',
-              lower: [category],
-              includeLower: false,
-              upper: [],
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'category',
+                lower: [],
+                upper: [category],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'category',
+                lower: [category],
+                includeLower: false,
+                upper: [],
+              ),
+            );
       } else {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'category',
-              lower: [category],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'category',
-              lower: [],
-              upper: [category],
-              includeUpper: false,
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'category',
+                lower: [category],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'category',
+                lower: [],
+                upper: [category],
+                includeUpper: false,
+              ),
+            );
       }
     });
   }
@@ -387,53 +411,56 @@ extension QuestionStatQueryWhere
 extension QuestionStatQueryFilter
     on QueryBuilder<QuestionStat, QuestionStat, QFilterCondition> {
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  categoryEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'category',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'category',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'category',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryLessThan(
+  categoryGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'category',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'category',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryBetween(
+  categoryLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'category',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
+  categoryBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -441,94 +468,96 @@ extension QuestionStatQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'category',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'category',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  categoryStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'category',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'category',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  categoryEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'category',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'category',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryContains(String value, {bool caseSensitive = true}) {
+  categoryContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'category',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'category',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryMatches(String pattern, {bool caseSensitive = true}) {
+  categoryMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'category',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'category',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryIsEmpty() {
+  categoryIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'category',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'category', value: ''),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      categoryIsNotEmpty() {
+  categoryIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'category',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'category', value: ''),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition> idEqualTo(
-      Id value) {
+    Id value,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
     });
   }
 
@@ -537,11 +566,13 @@ extension QuestionStatQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -550,11 +581,13 @@ extension QuestionStatQueryFilter
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -565,138 +598,142 @@ extension QuestionStatQueryFilter
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      lastAnsweredAtIsNull() {
+  lastAnsweredAtIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'lastAnsweredAt',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'lastAnsweredAt'),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      lastAnsweredAtIsNotNull() {
+  lastAnsweredAtIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'lastAnsweredAt',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'lastAnsweredAt'),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      lastAnsweredAtEqualTo(DateTime? value) {
+  lastAnsweredAtEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lastAnsweredAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lastAnsweredAt', value: value),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      lastAnsweredAtGreaterThan(
-    DateTime? value, {
-    bool include = false,
-  }) {
+  lastAnsweredAtGreaterThan(DateTime? value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'lastAnsweredAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastAnsweredAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      lastAnsweredAtLessThan(
-    DateTime? value, {
-    bool include = false,
-  }) {
+  lastAnsweredAtLessThan(DateTime? value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'lastAnsweredAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastAnsweredAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      lastAnsweredAtBetween(
+  lastAnsweredAtBetween(
     DateTime? lower,
     DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'lastAnsweredAt',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastAnsweredAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  questionEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'question',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'question',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'question',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionLessThan(
+  questionGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'question',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'question',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionBetween(
+  questionLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'question',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
+  questionBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -704,196 +741,196 @@ extension QuestionStatQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'question',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'question',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  questionStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'question',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'question',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  questionEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'question',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'question',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionContains(String value, {bool caseSensitive = true}) {
+  questionContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'question',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'question',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionMatches(String pattern, {bool caseSensitive = true}) {
+  questionMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'question',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'question',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionIsEmpty() {
+  questionIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'question',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'question', value: ''),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      questionIsNotEmpty() {
+  questionIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'question',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'question', value: ''),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesCorrectEqualTo(int value) {
+  timesCorrectEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'timesCorrect',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'timesCorrect', value: value),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesCorrectGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
+  timesCorrectGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'timesCorrect',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'timesCorrect',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesCorrectLessThan(
-    int value, {
-    bool include = false,
-  }) {
+  timesCorrectLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'timesCorrect',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'timesCorrect',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesCorrectBetween(
+  timesCorrectBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'timesCorrect',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'timesCorrect',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesShownEqualTo(int value) {
+  timesShownEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'timesShown',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'timesShown', value: value),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesShownGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
+  timesShownGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'timesShown',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'timesShown',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesShownLessThan(
-    int value, {
-    bool include = false,
-  }) {
+  timesShownLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'timesShown',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'timesShown',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterFilterCondition>
-      timesShownBetween(
+  timesShownBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'timesShown',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'timesShown',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -919,14 +956,14 @@ extension QuestionStatQuerySortBy
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      sortByLastAnsweredAt() {
+  sortByLastAnsweredAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastAnsweredAt', Sort.asc);
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      sortByLastAnsweredAtDesc() {
+  sortByLastAnsweredAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastAnsweredAt', Sort.desc);
     });
@@ -951,7 +988,7 @@ extension QuestionStatQuerySortBy
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      sortByTimesCorrectDesc() {
+  sortByTimesCorrectDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'timesCorrect', Sort.desc);
     });
@@ -964,7 +1001,7 @@ extension QuestionStatQuerySortBy
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      sortByTimesShownDesc() {
+  sortByTimesShownDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'timesShown', Sort.desc);
     });
@@ -998,14 +1035,14 @@ extension QuestionStatQuerySortThenBy
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      thenByLastAnsweredAt() {
+  thenByLastAnsweredAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastAnsweredAt', Sort.asc);
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      thenByLastAnsweredAtDesc() {
+  thenByLastAnsweredAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastAnsweredAt', Sort.desc);
     });
@@ -1030,7 +1067,7 @@ extension QuestionStatQuerySortThenBy
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      thenByTimesCorrectDesc() {
+  thenByTimesCorrectDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'timesCorrect', Sort.desc);
     });
@@ -1043,7 +1080,7 @@ extension QuestionStatQuerySortThenBy
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QAfterSortBy>
-      thenByTimesShownDesc() {
+  thenByTimesShownDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'timesShown', Sort.desc);
     });
@@ -1052,22 +1089,24 @@ extension QuestionStatQuerySortThenBy
 
 extension QuestionStatQueryWhereDistinct
     on QueryBuilder<QuestionStat, QuestionStat, QDistinct> {
-  QueryBuilder<QuestionStat, QuestionStat, QDistinct> distinctByCategory(
-      {bool caseSensitive = true}) {
+  QueryBuilder<QuestionStat, QuestionStat, QDistinct> distinctByCategory({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'category', caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<QuestionStat, QuestionStat, QDistinct>
-      distinctByLastAnsweredAt() {
+  distinctByLastAnsweredAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastAnsweredAt');
     });
   }
 
-  QueryBuilder<QuestionStat, QuestionStat, QDistinct> distinctByQuestion(
-      {bool caseSensitive = true}) {
+  QueryBuilder<QuestionStat, QuestionStat, QDistinct> distinctByQuestion({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'question', caseSensitive: caseSensitive);
     });
@@ -1101,7 +1140,7 @@ extension QuestionStatQueryProperty
   }
 
   QueryBuilder<QuestionStat, DateTime?, QQueryOperations>
-      lastAnsweredAtProperty() {
+  lastAnsweredAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastAnsweredAt');
     });

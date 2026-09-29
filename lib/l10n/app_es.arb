@@ -312,5 +312,16 @@
         "type": "int"
       }
     }
+  },
+  "rebalanceTitle": "Reequilibrar campaña",
+  "rebalanceSubtitle": "Reordena los niveles por dificultad usando tus estadísticas.",
+  "rebalanceDone": "Campaña reequilibrada ({moved} preguntas movidas).",
+  "rebalanceNothing": "La campaña ya está bien ordenada.",
+  "@rebalanceDone": {
+    "placeholders": {
+      "moved": {
+        "type": "int"
+      }
+    }
   }
 }

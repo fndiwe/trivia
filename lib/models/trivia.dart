@@ -19,6 +19,12 @@ class Trivia {
   @Index()
   final String question;
 
+  /// Estimated `0..1` difficulty (higher = harder). Set at import time from
+  /// the question content, and refined from the player's statistics when the
+  /// campaign is rebalanced. Indexed so levels can be ordered by it.
+  @Index()
+  final double difficulty;
+
   final String answer;
   final List<String> choices;
 
@@ -28,6 +34,7 @@ class Trivia {
     required this.choices,
     required this.category,
     this.level = 0,
+    this.difficulty = 0.5,
   });
 
   /// Parses one record of the bundled `assets/trivia.json`.
@@ -71,11 +78,26 @@ class Trivia {
     category: map['category'],
   );
 
+  /// Returns a copy in another level. The Isar [id] is preserved, so the
+  /// copy can be used to *update* the stored row (during import the id is the
+  /// auto-increment sentinel and a new row is created, which is what we want).
   Trivia withLevel(int level) => Trivia(
     question: question,
     answer: answer,
     choices: choices,
     category: category,
     level: level,
-  );
+    difficulty: difficulty,
+  )..id = id;
+
+  /// Returns a copy with a new [difficulty]; the Isar [id] is preserved so the
+  /// copy can update the stored row.
+  Trivia withDifficulty(double difficulty) => Trivia(
+    question: question,
+    answer: answer,
+    choices: choices,
+    category: category,
+    level: level,
+    difficulty: difficulty,
+  )..id = id;
 }
